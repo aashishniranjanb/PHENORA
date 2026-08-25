@@ -1,0 +1,105 @@
+ELMER SOLVER (v 26.2) STARTED AT: 2026/08/26 01:54:29
+ParCommInit: Initialize #PEs: 1
+MAIN: OMP_NUM_THREADS not set. Using only 1 thread per task.
+MAIN: 
+MAIN: =============================================================
+MAIN: ElmerSolver finite element software, Welcome!
+MAIN: This program is free software licensed under (L)GPL
+MAIN: Copyright 1st April 1995 - , CSC - IT Center for Science Ltd.
+MAIN: Webpage http://www.csc.fi/elmer, Email elmeradm@csc.fi
+MAIN: Version: 26.2-unknown (Rev: unknown, Compiled: 2026-07-30)
+MAIN:  Running one task without MPI parallelization.
+MAIN:  Running with just one thread per task.
+MAIN:  Lua interpreter linked in.
+MAIN: =============================================================
+MAIN: 
+MAIN: 
+MAIN: -------------------------------------
+MAIN: Reading Model: case.sif
+ Caught LUA error:[string "loadfile("/ucrt64/share/elmersolver" .. "/l..."]:1: attempt to call a nil value
+ Caught LUA error:[string "loadstring(readsif("case.sif"))()"]:1: attempt to call global 'readsif' (a nil value)
+LoadInputFile: Scanning input file: case.sif
+LoadInputFile: Scanning only size info
+LoadInputFile: First time visiting
+LoadInputFile: Reading base load of sif file
+LoadInputFile: Loading input file: case.sif
+LoadInputFile: Reading base load of sif file
+LoadInputFile: Number of BCs: 4
+LoadInputFile: Number of Body Forces: 0
+LoadInputFile: Number of Initial Conditions: 0
+LoadInputFile: Number of Materials: 1
+LoadInputFile: Number of Equations: 1
+LoadInputFile: Number of Solvers: 2
+LoadInputFile: Number of Bodies: 1
+ElmerMeshReader: Base mesh name: ./.
+LoadMesh: Elapsed REAL time:     0.0620 (s)
+MAIN: -------------------------------------
+OptimizeBandwidth: Initial bandwidth for stat current: 984
+OptimizeBandwidth: Optimized bandwidth for stat current: 36
+MAIN: Number of timesteps to be saved: 1
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            1
+MAIN: -------------------------------------
+MAIN: 
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve:  Assembly (s)          :   6.0000000000000053E-003
+       1 0.1057E+00
+       2 0.6540E-01
+       3 0.4747E-01
+       4 0.3432E-01
+       5 0.2854E-01
+       6 0.2465E-01
+       7 0.2046E-01
+       8 0.1827E-01
+       9 0.1684E-01
+      10 0.1504E-01
+      11 0.1357E-01
+      12 0.1262E-01
+      13 0.1068E-01
+      14 0.7731E-02
+      15 0.4213E-02
+      16 0.1643E-02
+      17 0.5733E-03
+      18 0.2348E-03
+      19 0.2059E-03
+      20 0.1614E-03
+      21 0.1172E-03
+      22 0.7145E-04
+      23 0.3378E-04
+      24 0.1831E-04
+      25 0.9700E-05
+      26 0.6673E-05
+      27 0.3382E-05
+      28 0.1993E-05
+      29 0.1157E-05
+      30 0.7043E-06
+      31 0.3875E-06
+      32 0.1614E-06
+      33 0.5668E-07
+      34 0.1749E-07
+      35 0.4703E-08
+      36 0.2446E-08
+      37 0.1187E-08
+      38 0.4256E-09
+      39 0.1301E-09
+      40 0.6623E-10
+      40 0.6623E-10
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.58164156      2.0000000     ) :: stat current
+StatCurrentSolve:  Solve (s)             :   6.0000000000000053E-003
+StatCurrentSolve:  Total Heating Power   :  0.12499999999999895
+StatCurrentSolve:  Effective Resistance  :   8.0000000000000675
+ComputeChange: SS (ITER=1) (NRM,RELC): ( 0.58164156      2.0000000     ) :: stat current
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Saving with prefix: phenora
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Saving results in VTK XML format with prefix: phenora
+VtuOutputSolver: Saving number of partitions: 1
+ResultOutputSolver: -------------------------------------
+MAIN: *** Elmer Solver: ALL DONE ***
+MAIN: The end
+SOLVER TOTAL TIME(CPU,REAL):         0.32        0.32
+ELMER SOLVER FINISHED AT: 2026/08/26 01:54:29
+

@@ -1,0 +1,108 @@
+ELMER SOLVER (v 26.2) STARTED AT: 2026/08/26 01:55:12
+ParCommInit: Initialize #PEs: 1
+MAIN: OMP_NUM_THREADS not set. Using only 1 thread per task.
+MAIN: 
+MAIN: =============================================================
+MAIN: ElmerSolver finite element software, Welcome!
+MAIN: This program is free software licensed under (L)GPL
+MAIN: Copyright 1st April 1995 - , CSC - IT Center for Science Ltd.
+MAIN: Webpage http://www.csc.fi/elmer, Email elmeradm@csc.fi
+MAIN: Version: 26.2-unknown (Rev: unknown, Compiled: 2026-07-30)
+MAIN:  Running one task without MPI parallelization.
+MAIN:  Running with just one thread per task.
+MAIN:  Lua interpreter linked in.
+MAIN: =============================================================
+MAIN: 
+MAIN: 
+MAIN: -------------------------------------
+MAIN: Reading Model: case.sif
+ Caught LUA error:[string "loadfile("/ucrt64/share/elmersolver" .. "/l..."]:1: attempt to call a nil value
+ Caught LUA error:[string "loadstring(readsif("case.sif"))()"]:1: attempt to call global 'readsif' (a nil value)
+LoadInputFile: Scanning input file: case.sif
+LoadInputFile: Scanning only size info
+LoadInputFile: First time visiting
+LoadInputFile: Reading base load of sif file
+LoadInputFile: Loading input file: case.sif
+LoadInputFile: Reading base load of sif file
+LoadInputFile: Number of BCs: 4
+LoadInputFile: Number of Body Forces: 0
+LoadInputFile: Number of Initial Conditions: 0
+LoadInputFile: Number of Materials: 2
+LoadInputFile: Number of Equations: 1
+LoadInputFile: Number of Solvers: 2
+LoadInputFile: Number of Bodies: 2
+ElmerMeshReader: Base mesh name: ./.
+LoadMesh: Elapsed REAL time:     0.0720 (s)
+MAIN: -------------------------------------
+OptimizeBandwidth: Initial bandwidth for stat current: 1006
+OptimizeBandwidth: Optimized bandwidth for stat current: 38
+MAIN: Number of timesteps to be saved: 1
+MAIN: 
+MAIN: -------------------------------------
+MAIN:  Steady state iteration:            1
+MAIN: -------------------------------------
+MAIN: 
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve: STAT CURRENT SOLVER:
+StatCurrentSolve: -------------------------------------
+StatCurrentSolve:  Assembly (s)          :   9.0000000000000080E-003
+       1 0.8688E-01
+       2 0.5996E-01
+       3 0.4419E-01
+       4 0.3665E-01
+       5 0.3288E-01
+       6 0.2380E-01
+       7 0.2163E-01
+       8 0.1740E-01
+       9 0.1646E-01
+      10 0.1276E-01
+      11 0.1132E-01
+      12 0.9942E-02
+      13 0.8575E-02
+      14 0.7175E-02
+      15 0.5004E-02
+      16 0.2388E-02
+      17 0.1029E-02
+      18 0.3919E-03
+      19 0.2020E-03
+      20 0.1205E-03
+      21 0.8504E-04
+      22 0.8887E-04
+      23 0.6446E-04
+      24 0.4646E-04
+      25 0.3803E-04
+      26 0.3339E-04
+      27 0.1559E-04
+      28 0.9949E-05
+      29 0.9773E-05
+      30 0.4013E-05
+      31 0.1432E-05
+      32 0.7503E-06
+      33 0.3081E-06
+      34 0.1174E-06
+      35 0.5393E-07
+      36 0.2127E-07
+      37 0.8314E-08
+      38 0.3957E-08
+      39 0.1326E-08
+      40 0.6089E-09
+      41 0.2935E-09
+      42 0.1156E-09
+      43 0.3401E-10
+      43 0.3401E-10
+ComputeChange: NS (ITER=1) (NRM,RELC): ( 0.59349694      2.0000000     ) :: stat current
+StatCurrentSolve:  Solve (s)             :   8.0000000000000071E-003
+StatCurrentSolve:  Total Heating Power   :  0.39307268758512109
+StatCurrentSolve:  Effective Resistance  :   2.5440587239566139
+ComputeChange: SS (ITER=1) (NRM,RELC): ( 0.59349694      2.0000000     ) :: stat current
+ResultOutputSolver: -------------------------------------
+ResultOutputSolver: Saving with prefix: phenora_heterogeneous
+ResultOutputSolver: Saving in unstructured VTK XML (.vtu) format
+VtuOutputSolver: Saving results in VTK XML format with prefix: phenora_heterogeneous
+VtuOutputSolver: Saving number of partitions: 1
+ResultOutputSolver: -------------------------------------
+MAIN: *** Elmer Solver: ALL DONE ***
+MAIN: The end
+SOLVER TOTAL TIME(CPU,REAL):         0.40        0.40
+ELMER SOLVER FINISHED AT: 2026/08/26 01:55:13
+
