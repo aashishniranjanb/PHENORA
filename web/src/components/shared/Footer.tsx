@@ -11,7 +11,7 @@ export default function Footer() {
             <div className="flex items-center space-x-2 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-8 h-8">
                 <g transform="translate(10, 25)">
-                  <path d="M 0,25 C 10,5 20,45 30,25 C 40,5 50,45 60,25" fill="none" stroke="#17B169" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M 0,25 C 10,5 20,45 30,25 C 40,5 50,45 60,25" fill="none" stroke="#17B169" strokeWidth="6" strokeLinecap="round"/>
                   <rect x="68" y="10" width="10" height="30" rx="3" fill="#17B169" opacity="0.6"/>
                   <rect x="82" y="0" width="12" height="50" rx="3" fill="#17B169"/>
                 </g>
@@ -26,7 +26,7 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4 text-xs tracking-widest uppercase">Quick Links</h3>
             <ul className="space-y-2 text-xs">
               <li><Link href="/technology" className="hover:text-[#17B169] transition-colors">Technology Details</Link></li>
-              <li><Link href="/simulation" className="hover:text-[#17B169] transition-colors">Simulation Lab</Link></li>
+              <li><Link href="/spectrae" className="hover:text-[#17B169] transition-colors">Simulation Lab</Link></li>
               <li><Link href="/research" className="hover:text-[#17B169] transition-colors">Research Matrix</Link></li>
               <li><Link href="/platform" className="hover:text-[#17B169] transition-colors">V1-V3 Roadmap</Link></li>
             </ul>

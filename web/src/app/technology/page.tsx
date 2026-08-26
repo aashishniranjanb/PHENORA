@@ -1,6 +1,7 @@
 "use client";
 
 import { Cpu, Activity, Zap, Layers, RefreshCw } from "lucide-react";
+import ArchitectureFlow from "@/components/product/ArchitectureFlow";
 
 export default function Technology() {
   return (
@@ -64,50 +65,7 @@ export default function Technology() {
         {/* Section 2: PHENORA Architecture Diagram */}
         <section className="mb-12">
           <h2 className="text-xl font-bold text-white mb-6 uppercase tracking-wider">Functional Signal Flow</h2>
-          <div className="bg-[#081324] border border-gray-800 rounded-xl p-8 overflow-x-auto shadow-xl">
-            <div className="min-w-[650px] flex items-center justify-between text-center font-mono text-xs">
-              
-              <div className="flex flex-col gap-2">
-                <div className="bg-[#0A192F] border border-gray-700 p-4 rounded-lg w-28">
-                  <span className="text-white block font-bold">CONTROL</span>
-                  <span className="text-gray-500 text-[10px]">No Antibiotic</span>
-                </div>
-                <div className="bg-[#0A192F] border border-gray-700 p-4 rounded-lg w-28">
-                  <span className="text-white block font-bold">TEST</span>
-                  <span className="text-gray-500 text-[10px]">+ Antibiotic</span>
-                </div>
-              </div>
-              
-              <div className="text-gray-500 font-bold">→</div>
-
-              <div className="bg-[#0A192F] border border-yellow-500/40 p-4 rounded-lg w-28 text-yellow-500">
-                <span className="block font-bold">ELECTRODES</span>
-                <span className="text-[10px] text-gray-500">Current Pick</span>
-              </div>
-              
-              <div className="text-gray-500 font-bold">→</div>
-
-              <div className="bg-[#0A192F] border border-purple-500/40 p-4 rounded-lg w-28 text-purple-400">
-                <span className="block font-bold">AD5933</span>
-                <span className="text-[10px] text-gray-500">DFT / ADC</span>
-              </div>
-
-              <div className="text-gray-500 font-bold">→</div>
-
-              <div className="bg-[#0A192F] border border-green-500/40 p-4 rounded-lg w-28 text-[#17B169]">
-                <span className="block font-bold">HELTEC MCU</span>
-                <span className="text-[10px] text-gray-500">I2C Control</span>
-              </div>
-
-              <div className="text-gray-500 font-bold">→</div>
-
-              <div className="bg-[#0A192F] border border-pink-500/40 p-4 rounded-lg w-32 text-pink-400">
-                <span className="block font-bold">FPGA</span>
-                <span className="text-[10px] text-gray-500">Adaptive Decision</span>
-              </div>
-              
-            </div>
-          </div>
+          <ArchitectureFlow />
         </section>
 
         {/* Section 3: Hardware Cards */}

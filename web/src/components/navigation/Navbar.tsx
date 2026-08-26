@@ -12,7 +12,7 @@ export default function Navbar() {
   const links = [
     { href: "/", label: "HOME" },
     { href: "/technology", label: "TECHNOLOGY" },
-    { href: "/simulation", label: "SIMULATION LAB" },
+    { href: "/spectrae", label: "SIMULATION LAB" },
     { href: "/research", label: "RESEARCH" },
     { href: "/platform", label: "PLATFORM" },
     { href: "/team", label: "TEAM" },
@@ -27,7 +27,7 @@ export default function Navbar() {
             <Link href="/" className="flex items-center space-x-3">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" className="w-10 h-10">
                 <g transform="translate(10, 25)">
-                  <path d="M 0,25 C 10,5 20,45 30,25 C 40,5 50,45 60,25" fill="none" stroke="#17B169" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M 0,25 C 10,5 20,45 30,25 C 40,5 50,45 60,25" fill="none" stroke="#17B169" strokeWidth="6" strokeLinecap="round"/>
                   <rect x="68" y="10" width="10" height="30" rx="3" fill="#17B169" opacity="0.6"/>
                   <rect x="82" y="0" width="12" height="50" rx="3" fill="#17B169"/>
                 </g>
@@ -58,7 +58,7 @@ export default function Navbar() {
               );
             })}
             <Link
-              href="/simulation"
+              href="/spectrae"
               className="ml-4 px-4 py-2 border border-[#17B169] text-[#17B169] hover:bg-[#17B169] hover:text-[#0A192F] transition-all duration-200 rounded text-xs font-bold tracking-wider"
             >
               EXPLORE V1
@@ -99,7 +99,7 @@ export default function Navbar() {
               );
             })}
             <Link
-              href="/simulation"
+              href="/spectrae"
               onClick={() => setIsOpen(false)}
               className="block w-full text-center mt-4 px-4 py-2 border border-[#17B169] text-[#17B169] hover:bg-[#17B169] hover:text-[#0A192F] transition-all duration-200 rounded text-xs font-bold tracking-wider"
             >
