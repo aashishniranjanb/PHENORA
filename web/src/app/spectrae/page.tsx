@@ -824,19 +824,19 @@ export default function SimulationLab() {
 
         {/* SIGNAL PIPELINE BLOCK */}
         <div className="mb-5">
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-3 font-mono text-[9px]">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-3 font-mono">
             {[
-              { label: "01 RAW ΔF", sub: "F_test - F_control", value: `${cp.delta_F.toFixed(3)} Ω`, color: "border-blue-200 bg-blue-50/70 text-blue-900" },
-              { label: "02 MOVING AVG", sub: "Filter window N=4", value: `${filtered.toFixed(3)} Ω`, color: "border-purple-200 bg-purple-50/70 text-purple-900" },
-              { label: "03 DERIVATIVE", sub: "Slope lag K=4", value: `${slope.toFixed(5)} Ω/h`, color: "border-amber-200 bg-amber-50/70 text-amber-900" },
-              { label: "04 STABILITY", sub: "slope < threshold?", value: stabilityText, color: "border-orange-200 bg-orange-50/70 text-orange-900" },
-              { label: "05 STATE CHECK", sub: "Stability FSM count", value: simState === "STOP" ? "STABLE" : "ACQUIRING", color: "border-teal-200 bg-teal-50/70 text-teal-900" },
-              { label: "06 COMMAND", sub: "halting stop output", value: simState === "STOP" ? "HALT COMMAND" : "CONTINUE", color: "border-emerald-200 bg-emerald-50/70 text-emerald-900" }
+              { label: "01 RAW ΔF", sub: "F_test - F_control", value: `${cp.delta_F.toFixed(3)} Ω`, badgeBg: "bg-blue-100 border-blue-300 text-blue-950", labelColor: "text-blue-900", subColor: "text-blue-700", valColor: "text-blue-950" },
+              { label: "02 MOVING AVG", sub: "Filter window N=4", value: `${filtered.toFixed(3)} Ω`, badgeBg: "bg-purple-100 border-purple-300 text-purple-950", labelColor: "text-purple-900", subColor: "text-purple-700", valColor: "text-purple-950" },
+              { label: "03 DERIVATIVE", sub: "Slope lag K=4", value: `${slope.toFixed(5)} Ω/h`, badgeBg: "bg-amber-100 border-amber-300 text-amber-950", labelColor: "text-amber-900", subColor: "text-amber-700", valColor: "text-amber-950" },
+              { label: "04 STABILITY", sub: "slope < threshold?", value: stabilityText, badgeBg: "bg-orange-100 border-orange-300 text-orange-950", labelColor: "text-orange-900", subColor: "text-orange-700", valColor: "text-orange-950" },
+              { label: "05 STATE CHECK", sub: "Stability FSM count", value: simState === "STOP" ? "STABLE" : "ACQUIRING", badgeBg: "bg-teal-100 border-teal-300 text-teal-950", labelColor: "text-teal-900", subColor: "text-teal-700", valColor: "text-teal-950" },
+              { label: "06 COMMAND", sub: "halting stop output", value: simState === "STOP" ? "HALT COMMAND" : "CONTINUE", badgeBg: "bg-emerald-100 border-emerald-300 text-emerald-950", labelColor: "text-emerald-900", subColor: "text-emerald-700", valColor: "text-emerald-950" }
             ].map(card => (
-              <div key={card.label} className={`border rounded p-2.5 text-center ${card.color} shadow-2xs`}>
-                <span className="text-[8px] text-slate-500 font-bold block">{card.label}</span>
-                <span className="text-[7.5px] text-slate-500 font-semibold block mb-1">{card.sub}</span>
-                <span className="font-black text-[10.5px] block">{card.value}</span>
+              <div key={card.label} className={`border-2 rounded-xl p-3 text-center ${card.badgeBg} shadow-sm transition-all hover:scale-[1.02]`}>
+                <span className={`text-[10px] font-extrabold tracking-wider block uppercase ${card.labelColor}`}>{card.label}</span>
+                <span className={`text-[8.5px] font-bold block mb-1.5 opacity-90 ${card.subColor}`}>{card.sub}</span>
+                <span className={`font-black text-xs sm:text-sm block tracking-tight ${card.valColor}`}>{card.value}</span>
               </div>
             ))}
           </div>

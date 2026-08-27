@@ -118,22 +118,74 @@ function DataPulse({ from, to, color, active, offset = 0 }: { from: [number, num
   );
 }
 
-function Wire({ from, to, active, label }: { from: [number, number, number]; to: [number, number, number]; active: boolean; label: string }) {
-  const geo = useMemo(() => new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...from), new THREE.Vector3(...to)]), [from, to]);
-  const mat = useMemo(() => new THREE.LineBasicMaterial({ color: "#1a2840" }), []);
-  useEffect(() => {
-    mat.color.set(active ? "#374151" : "#111827");
-  }, [active, mat]);
-  const mid: [number, number, number] = [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2 + 0.38, (from[2] + to[2]) / 2];
+// Realistic routed wire using TubeGeometry following a CatmullRomCurve3
+function RealisticWire({ points, color, active, radius = 0.025, label }: {
+  points: [number, number, number][];
+  color: string;
+  active: boolean;
+  radius?: number;
+  label?: string;
+}) {
+  const { tube, midPoint } = useMemo(() => {
+    const curve = new THREE.CatmullRomCurve3(
+      points.map(p => new THREE.Vector3(...p)),
+      false,
+      "catmullrom",
+      0.3
+    );
+    const geo = new THREE.TubeGeometry(curve, 32, radius, 8, false);
+    const mid = curve.getPointAt(0.5);
+    return { tube: geo, midPoint: [mid.x, mid.y + 0.32, mid.z] as [number, number, number] };
+  }, [points, radius]);
+
   return (
     <>
-      <primitive object={new THREE.Line(geo, mat)} />
-      {active && (
-        <Html position={mid} center>
-          <div className="text-[7px] text-gray-600 font-mono bg-[#081526]/80 px-1 py-0.5 rounded pointer-events-none whitespace-nowrap border border-gray-800">{label}</div>
+      <mesh geometry={tube}>
+        <meshStandardMaterial
+          color={active ? color : "#94a3b8"}
+          emissive={active ? color : "#000000"}
+          emissiveIntensity={active ? 0.35 : 0}
+          roughness={0.3}
+          metalness={0.7}
+        />
+      </mesh>
+      {/* Wire jacket stripe */}
+      <mesh geometry={tube}>
+        <meshStandardMaterial
+          color={active ? color : "#64748b"}
+          transparent
+          opacity={0.12}
+          roughness={0.1}
+          metalness={0.9}
+          wireframe
+        />
+      </mesh>
+      {active && label && (
+        <Html position={midPoint} center distanceFactor={10}>
+          <div className="text-[7px] text-slate-900 font-mono font-bold bg-white/95 px-1.5 py-0.5 rounded shadow-sm pointer-events-none whitespace-nowrap border border-slate-300">{label}</div>
         </Html>
       )}
     </>
+  );
+}
+
+// Connector pin at board edge — small cylinder representing a wire plug
+function ConnectorPin({ position, color }: { position: [number, number, number]; color: string }) {
+  return (
+    <mesh position={position}>
+      <cylinderGeometry args={[0.04, 0.04, 0.08, 8]} />
+      <meshStandardMaterial color={color} metalness={0.8} roughness={0.2} />
+    </mesh>
+  );
+}
+
+// Ground plane reflector
+function GroundPlane() {
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.48, 0]} receiveShadow>
+      <planeGeometry args={[20, 8]} />
+      <meshStandardMaterial color="#e2e8f0" roughness={0.9} metalness={0.05} transparent opacity={0.7} />
+    </mesh>
   );
 }
 
@@ -154,26 +206,87 @@ function SceneContent({ cellConcentration, conductivity, temperature, activePhas
   };
 
   const phaseGte = (n: number) => activePhase !== null && activePhase >= n;
-  const measurementActive = phaseGte(1);
 
-  const cR: [number, number, number] = [-3.3, 0, 0];
-  const aL: [number, number, number] = [-2.1, 0, 0];
-  const aR: [number, number, number] = [-1.1, 0, 0];
-  const hL: [number, number, number] = [0.2, 0, 0];
-  const hR: [number, number, number] = [1.6, 0, 0];
-  const fL: [number, number, number] = [2.55, 0, 0];
+  // Wire routing points (from → [bend points] → to) to simulate practical cable runs
+  // Chamber right edge → AD5933 left edge (analog coax pair)
+  const chamberToAd5933: [number, number, number][] = [
+    [-3.2, 0.0, 0.35],   // chamber right pin (front)
+    [-2.8, 0.18, 0.45],  // rise up and route forward
+    [-2.4, 0.22, 0.42],  // cable droop midpoint
+    [-2.1, 0.12, 0.35],  // approach ad5933
+    [-1.6, 0.0, 0.3],    // ad5933 left SMA
+  ];
+  const chamberToAd5933Rear: [number, number, number][] = [
+    [-3.2, 0.0, -0.35],
+    [-2.8, 0.2, -0.48],
+    [-2.4, 0.24, -0.44],
+    [-2.1, 0.14, -0.35],
+    [-1.6, 0.0, -0.3],
+  ];
+
+  // AD5933 right → Heltec left (I2C ribbon cable)
+  const ad5933ToHeltec: [number, number, number][] = [
+    [-1.1, 0.0, 0.25],
+    [-0.6, 0.15, 0.35],
+    [-0.1, 0.2, 0.32],
+    [0.3, 0.14, 0.28],
+    [0.9, 0.0, 0.2],
+  ];
+  const ad5933ToHeltecGnd: [number, number, number][] = [
+    [-1.1, 0.0, -0.25],
+    [-0.6, 0.12, -0.32],
+    [-0.1, 0.16, -0.3],
+    [0.3, 0.1, -0.26],
+    [0.9, 0.0, -0.2],
+  ];
+
+  // Heltec right → FPGA left (UART serial cable)
+  const heltecToFpga: [number, number, number][] = [
+    [1.6, 0.0, 0.28],
+    [1.9, 0.18, 0.38],
+    [2.3, 0.24, 0.35],
+    [2.6, 0.16, 0.3],
+    [3.1, 0.0, 0.22],
+  ];
+  const heltecToFpgaGnd: [number, number, number][] = [
+    [1.6, 0.0, -0.28],
+    [1.9, 0.15, -0.36],
+    [2.3, 0.2, -0.33],
+    [2.6, 0.12, -0.28],
+    [3.1, 0.0, -0.22],
+  ];
+
+  // Power bus wire running along the back
+  const powerBus: [number, number, number][] = [
+    [-4.0, -0.2, -0.7],
+    [-2.5, -0.22, -0.75],
+    [-0.5, -0.24, -0.78],
+    [1.5, -0.22, -0.75],
+    [3.5, -0.2, -0.7],
+  ];
+  const groundBus: [number, number, number][] = [
+    [-4.0, -0.22, -0.82],
+    [-2.5, -0.24, -0.86],
+    [-0.5, -0.26, -0.88],
+    [1.5, -0.24, -0.86],
+    [3.5, -0.22, -0.82],
+  ];
 
   return (
     <>
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[8, 14, 8]} intensity={1.3} />
-      <directionalLight position={[-6, 6, -6]} intensity={0.4} />
+      <ambientLight intensity={0.75} />
+      <directionalLight position={[8, 14, 8]} intensity={1.4} castShadow />
+      <directionalLight position={[-6, 6, -6]} intensity={0.45} />
+      <directionalLight position={[0, 8, -10]} intensity={0.3} color="#e0e7ff" />
+
+      {/* Ground platform */}
       {!isExploded && (
         <mesh position={[0, -0.42, 0]}>
-          <boxGeometry args={[10, 0.06, 2.8]} />
-          <meshStandardMaterial color="#cbd5e1" roughness={0.7} metalness={0.1} />
+          <boxGeometry args={[10.5, 0.08, 3.2]} />
+          <meshStandardMaterial color="#cbd5e1" roughness={0.6} metalness={0.12} />
         </mesh>
       )}
+      <GroundPlane />
       <gridHelper args={[18, 18, "#059669", "#94a3b8"]} position={[0, -0.55, 0]} />
 
       {HARDWARE_COMPS.map(comp => {
@@ -227,17 +340,42 @@ function SceneContent({ cellConcentration, conductivity, temperature, activePhas
         );
       })}
 
+      {/* ── REALISTIC WIRE HARNESS ── */}
       {!isExploded && (
         <>
-          <Wire from={cR} to={aL} active={phaseGte(2)} label="I2C 400kHz" />
-          <Wire from={aR} to={hL} active={phaseGte(3)} label="I2C" />
-          <Wire from={hR} to={fL} active={phaseGte(4)} label="UART 115200" />
-          <DataPulse from={cR} to={aL} color="#7b2d8b" active={phaseGte(2)} offset={0.0} />
-          <DataPulse from={cR} to={aL} color="#7b2d8b" active={phaseGte(2)} offset={0.5} />
-          <DataPulse from={aR} to={hL} color="#0a6b55" active={phaseGte(3)} offset={0.2} />
-          <DataPulse from={aR} to={hL} color="#0a6b55" active={phaseGte(3)} offset={0.7} />
-          <DataPulse from={hR} to={fL} color="#8b0036" active={phaseGte(4)} offset={0.1} />
-          <DataPulse from={hR} to={fL} color="#8b0036" active={phaseGte(4)} offset={0.6} />
+          {/* Analog coax pair: Chamber ↔ AD5933 (purple = signal) */}
+          <RealisticWire points={chamberToAd5933} color="#7c3aed" active={phaseGte(2)} radius={0.028} label="ANALOG SIG+" />
+          <RealisticWire points={chamberToAd5933Rear} color="#6d28d9" active={phaseGte(2)} radius={0.022} label="ANALOG SIG−" />
+
+          {/* I2C ribbon: AD5933 ↔ Heltec (blue = I2C data, gray = ground) */}
+          <RealisticWire points={ad5933ToHeltec} color="#2563eb" active={phaseGte(3)} radius={0.024} label="I2C SDA 400kHz" />
+          <RealisticWire points={ad5933ToHeltecGnd} color="#3b82f6" active={phaseGte(3)} radius={0.02} label="I2C SCL" />
+
+          {/* UART serial: Heltec ↔ FPGA (green = TX, teal = RX) */}
+          <RealisticWire points={heltecToFpga} color="#059669" active={phaseGte(4)} radius={0.024} label="UART TX 115200" />
+          <RealisticWire points={heltecToFpgaGnd} color="#0d9488" active={phaseGte(4)} radius={0.02} label="UART RX" />
+
+          {/* Power & Ground bus (red = 3.3V, black = GND) */}
+          <RealisticWire points={powerBus} color="#dc2626" active={true} radius={0.03} label="3.3V RAIL" />
+          <RealisticWire points={groundBus} color="#1e293b" active={true} radius={0.026} label="GND BUS" />
+
+          {/* Connector pins at wire endpoints */}
+          <ConnectorPin position={[-3.2, 0.0, 0.35]} color="#7c3aed" />
+          <ConnectorPin position={[-1.6, 0.0, 0.3]} color="#7c3aed" />
+          <ConnectorPin position={[-3.2, 0.0, -0.35]} color="#6d28d9" />
+          <ConnectorPin position={[-1.6, 0.0, -0.3]} color="#6d28d9" />
+          <ConnectorPin position={[-1.1, 0.0, 0.25]} color="#2563eb" />
+          <ConnectorPin position={[0.9, 0.0, 0.2]} color="#2563eb" />
+          <ConnectorPin position={[1.6, 0.0, 0.28]} color="#059669" />
+          <ConnectorPin position={[3.1, 0.0, 0.22]} color="#059669" />
+
+          {/* Data pulse particles flowing along wire paths */}
+          <DataPulse from={chamberToAd5933[0]} to={chamberToAd5933[4]} color="#7c3aed" active={phaseGte(2)} offset={0.0} />
+          <DataPulse from={chamberToAd5933[0]} to={chamberToAd5933[4]} color="#7c3aed" active={phaseGte(2)} offset={0.5} />
+          <DataPulse from={ad5933ToHeltec[0]} to={ad5933ToHeltec[4]} color="#2563eb" active={phaseGte(3)} offset={0.2} />
+          <DataPulse from={ad5933ToHeltec[0]} to={ad5933ToHeltec[4]} color="#2563eb" active={phaseGte(3)} offset={0.7} />
+          <DataPulse from={heltecToFpga[0]} to={heltecToFpga[4]} color="#059669" active={phaseGte(4)} offset={0.1} />
+          <DataPulse from={heltecToFpga[0]} to={heltecToFpga[4]} color="#059669" active={phaseGte(4)} offset={0.6} />
         </>
       )}
       <OrbitControls ref={ctrlRef} enableZoom minDistance={4} maxDistance={20} />
@@ -260,15 +398,23 @@ export default function SimulationScene(props: SimulationSceneProps) {
 
   return (
     <div className="w-full h-full relative bg-slate-50 rounded-xl overflow-hidden">
-      <Canvas camera={{ position: [0, 5.5, 10], fov: 40 }}>
+      <Canvas camera={{ position: [0, 5.5, 10], fov: 40 }} shadows>
         <SceneContent {...props} ctrlRef={ctrlRef} />
       </Canvas>
       <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-200 shadow-md pointer-events-none">
         <span className="text-[10px] text-[#059669] font-black tracking-widest block uppercase">PHENORA V1 Hardware Chain</span>
         <span className="text-[9px] text-slate-500 font-medium tracking-wide">Click to inspect / Drag to rotate / Scroll to zoom</span>
       </div>
-      <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-md border border-slate-200 shadow-md pointer-events-none max-w-[280px]">
-        <span className="text-[8px] text-slate-600 font-medium leading-tight block">x Cellular inclusions - schematic / x Signal flow - measurement visualization</span>
+      {/* Wire legend */}
+      <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md px-3 py-2 rounded-md border border-slate-200 shadow-md pointer-events-none">
+        <span className="text-[7px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Wire Legend</span>
+        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[7px] font-mono font-bold">
+          <span className="flex items-center gap-1"><span className="w-2.5 h-1 bg-purple-600 rounded-full inline-block" /> Analog</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-1 bg-blue-600 rounded-full inline-block" /> I2C</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-1 bg-emerald-600 rounded-full inline-block" /> UART</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-1 bg-red-600 rounded-full inline-block" /> 3.3V</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-1 bg-slate-800 rounded-full inline-block" /> GND</span>
+        </div>
       </div>
       <button onClick={() => ctrlRef.current?.reset()} className="absolute top-3 right-3 px-3 py-1.5 rounded-md bg-white border border-slate-300 text-[9px] text-slate-700 hover:text-slate-900 hover:border-slate-400 font-bold tracking-wider uppercase shadow-sm transition-colors cursor-pointer">
         Reset View

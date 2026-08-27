@@ -12,50 +12,67 @@ export default function Home() {
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-100 via-white to-white"></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-3xl">
-            <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-[#059669] mb-6 border border-emerald-200 tracking-wider uppercase shadow-sm">
-              V1 Engineering Prototype Platform
-            </span>
-            <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-none mb-6">
-              PHENORA
-            </h1>
-            <div className="text-xl sm:text-2xl text-slate-700 font-bold tracking-wide mb-4">
-              <span className="text-[#059669]">Adaptive Impedance.</span> Biological Precision. Edge Intelligence.
-            </div>
-            <p className="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed mb-8">
-              An adaptive differential impedance platform for rapid biological susceptibility measurement. Investigating bulk differential impedance sensing with real-time hardware-accelerated decision loops. Measure continuously, filter environmental noise, and conclude susceptibility as soon as sufficient evidence exists.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-10">
-              <Link
-                href="/spectrae"
-                className="inline-flex items-center justify-center px-6 py-3.5 bg-[#059669] hover:bg-[#047857] text-white font-bold tracking-wider rounded transition-all duration-200 text-sm shadow-md"
-              >
-                EXPLORE PHENORA V1 <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-              <Link
-                href="/spectrae"
-                className="inline-flex items-center justify-center px-6 py-3.5 border border-slate-300 hover:border-slate-400 hover:bg-slate-100 text-slate-800 font-bold tracking-wider rounded transition-all duration-200 text-sm shadow-sm"
-              >
-                EXPLORE SPECTRAE
-              </Link>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            {/* Left Content Column */}
+            <div className="lg:col-span-7">
+              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-[#059669] mb-6 border border-emerald-200 tracking-wider uppercase shadow-sm">
+                V1 Engineering Prototype Platform
+              </span>
+              <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-none mb-6">
+                PHENORA
+              </h1>
+              <div className="text-xl sm:text-2xl text-slate-700 font-bold tracking-wide mb-4">
+                <span className="text-[#059669]">Adaptive Impedance.</span> Biological Precision. Edge Intelligence.
+              </div>
+              <p className="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed mb-8">
+                An adaptive differential impedance platform for rapid biological susceptibility measurement. Investigating bulk differential impedance sensing with real-time hardware-accelerated decision loops. Measure continuously, filter environmental noise, and conclude susceptibility as soon as sufficient evidence exists.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-10">
+                <Link
+                  href="/spectrae"
+                  className="inline-flex items-center justify-center px-6 py-3.5 bg-[#059669] hover:bg-[#047857] text-white font-bold tracking-wider rounded transition-all duration-200 text-sm shadow-md"
+                >
+                  EXPLORE PHENORA V1 <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+                <Link
+                  href="/spectrae"
+                  className="inline-flex items-center justify-center px-6 py-3.5 border border-slate-300 hover:border-slate-400 hover:bg-slate-100 text-slate-800 font-bold tracking-wider rounded transition-all duration-200 text-sm shadow-sm"
+                >
+                  EXPLORE SPECTRAE
+                </Link>
+              </div>
+
+              {/* V1 Signal flow chart */}
+              <div className="pt-6 border-t border-slate-200">
+                <span className="text-[10px] text-[#059669] font-black tracking-widest uppercase block mb-3">V1 System Signal Pipeline</span>
+                <div className="flex flex-wrap items-center gap-2 font-mono text-[9px] sm:text-[10px] text-slate-700">
+                  <span className="px-2.5 py-1 bg-slate-100 rounded border border-slate-200 text-slate-900 font-bold">SAMPLE</span>
+                  <span className="text-[#059669] font-bold">→</span>
+                  <span className="px-2.5 py-1 bg-amber-50 rounded border border-amber-200 text-amber-800 font-bold">ELECTRODES</span>
+                  <span className="text-[#059669] font-bold">→</span>
+                  <span className="px-2.5 py-1 bg-purple-50 rounded border border-purple-200 text-purple-800 font-bold">AD5933</span>
+                  <span className="text-[#059669] font-bold">→</span>
+                  <span className="px-2.5 py-1 bg-emerald-50 rounded border border-emerald-200 text-emerald-800 font-bold">HELTEC ESP32-S3</span>
+                  <span className="text-[#059669] font-bold">→</span>
+                  <span className="px-2.5 py-1 bg-pink-50 rounded border border-pink-200 text-pink-800 font-bold">FPGA</span>
+                  <span className="text-[#059669] font-bold">→</span>
+                  <span className="px-2.5 py-1 bg-emerald-100 text-[#059669] rounded border border-emerald-300 font-extrabold">ADAPTIVE DECISION</span>
+                </div>
+              </div>
             </div>
 
-            {/* V1 Signal flow chart */}
-            <div className="pt-6 border-t border-slate-200">
-              <span className="text-[10px] text-[#059669] font-black tracking-widest uppercase block mb-3">V1 System Signal Pipeline</span>
-              <div className="flex flex-wrap items-center gap-2 font-mono text-[9px] sm:text-[10px] text-slate-700">
-                <span className="px-2.5 py-1 bg-slate-100 rounded border border-slate-200 text-slate-900 font-bold">SAMPLE</span>
-                <span className="text-[#059669] font-bold">→</span>
-                <span className="px-2.5 py-1 bg-amber-50 rounded border border-amber-200 text-amber-800 font-bold">ELECTRODES</span>
-                <span className="text-[#059669] font-bold">→</span>
-                <span className="px-2.5 py-1 bg-purple-50 rounded border border-purple-200 text-purple-800 font-bold">AD5933</span>
-                <span className="text-[#059669] font-bold">→</span>
-                <span className="px-2.5 py-1 bg-emerald-50 rounded border border-emerald-200 text-emerald-800 font-bold">HELTEC ESP32-S3</span>
-                <span className="text-[#059669] font-bold">→</span>
-                <span className="px-2.5 py-1 bg-pink-50 rounded border border-pink-200 text-pink-800 font-bold">FPGA</span>
-                <span className="text-[#059669] font-bold">→</span>
-                <span className="px-2.5 py-1 bg-emerald-100 text-[#059669] rounded border border-emerald-300 font-extrabold">ADAPTIVE DECISION</span>
+            {/* Right Column — Floating Product Image */}
+            <div className="lg:col-span-5 flex justify-center items-center relative">
+              <div className="relative w-full max-w-lg aspect-square flex items-center justify-center">
+                {/* Glow Backdrop */}
+                <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-3xl transform scale-90"></div>
+                {/* Floating Product Image */}
+                <img
+                  src="/images/HERO_product.png"
+                  alt="PHENORA Hero Product Enclosure"
+                  className="w-full h-auto object-contain drop-shadow-2xl animate-float relative z-10 rounded-2xl"
+                />
               </div>
             </div>
           </div>
