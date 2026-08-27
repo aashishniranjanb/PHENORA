@@ -26,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#0A192F] text-gray-100 font-sans">
+      <body className="min-h-full flex flex-col bg-white text-slate-900 font-sans">
         <Navbar />
         <main className="flex-grow">{children}</main>
         <Footer />
