@@ -15,23 +15,23 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
   let cls = "";
   switch (status) {
     case "VERIFIED":
-      cls = "bg-green-950/60 text-green-400 border-green-900/60";
+      cls = "bg-emerald-50 text-emerald-800 border-emerald-300";
       break;
     case "COMPUTATIONAL DEMONSTRATION":
-      cls = "bg-blue-950/60 text-blue-400 border-blue-900/60";
+      cls = "bg-blue-50 text-blue-800 border-blue-300";
       break;
     case "PROTOTYPE":
-      cls = "bg-yellow-950/60 text-yellow-500 border-yellow-900/60";
+      cls = "bg-amber-50 text-amber-800 border-amber-300";
       break;
     case "CONCEPT":
-      cls = "bg-purple-950/60 text-purple-400 border-purple-900/60";
+      cls = "bg-purple-50 text-purple-800 border-purple-300";
       break;
     case "NOT YET VALIDATED":
-      cls = "bg-red-950/60 text-red-400 border-red-900/60";
+      cls = "bg-red-50 text-red-800 border-red-300";
       break;
   }
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase border tracking-wider ${cls}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[8px] font-mono font-black uppercase border tracking-wider ${cls}`}>
       {status}
     </span>
   );

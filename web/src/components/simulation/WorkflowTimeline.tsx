@@ -24,27 +24,26 @@ const STEPS = [
 
 export default function WorkflowTimeline({ activePhase, currentStep }: WorkflowTimelineProps) {
   return (
-    <div className="bg-[#081324] border border-gray-800 rounded-xl p-5 shadow-xl">
+    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
       <div className="mb-4">
-        <span className="text-[10px] text-[#17B169] font-bold tracking-widest uppercase block">PHENORA MEASUREMENT WORKFLOW</span>
-        <h3 className="text-white text-base font-bold">Synchronized Processing Timeline</h3>
+        <span className="text-[10px] text-[#059669] font-black tracking-widest uppercase block">PHENORA MEASUREMENT WORKFLOW</span>
+        <h3 className="text-slate-900 text-base font-extrabold">Synchronized Processing Timeline</h3>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {STEPS.map((step, idx) => {
           const isCompleted = currentStep > idx;
           const isActive = currentStep === idx || activePhase === idx;
-          const isWaiting = currentStep < idx;
 
           let statusText = "WAITING";
-          let borderCls = "border-gray-900 bg-gray-950/20 text-gray-700";
+          let borderCls = "border-slate-200 bg-slate-50 text-slate-500";
           
           if (isCompleted) {
             statusText = "✓ DONE";
-            borderCls = "border-green-900 bg-green-950/10 text-green-500";
+            borderCls = "border-emerald-200 bg-emerald-50 text-emerald-800 font-semibold";
           } else if (isActive) {
             statusText = "ACTIVE";
-            borderCls = "border-[#17B169] bg-[#17B169]/5 text-[#17B169] shadow-[0_0_12px_rgba(23,177,105,0.1)]";
+            borderCls = "border-[#059669] bg-emerald-100/70 text-[#059669] shadow-sm font-bold";
           }
 
           return (
@@ -54,10 +53,10 @@ export default function WorkflowTimeline({ activePhase, currentStep }: WorkflowT
             >
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-[9px] font-mono font-bold text-gray-500">{step.id} {step.label}</span>
-                  <span className="text-[7.5px] font-bold font-mono px-1 rounded bg-black/40">{statusText}</span>
+                  <span className="text-[9px] font-mono font-bold text-slate-700">{step.id} {step.label}</span>
+                  <span className="text-[7.5px] font-bold font-mono px-1.5 py-0.5 rounded bg-white border border-slate-200 shadow-2xs">{statusText}</span>
                 </div>
-                <p className="text-[9px] text-gray-400 leading-snug">{step.desc}</p>
+                <p className="text-[9px] text-slate-600 leading-snug font-medium">{step.desc}</p>
               </div>
             </div>
           );

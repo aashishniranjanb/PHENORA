@@ -4,6 +4,10 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
+import HeltecBoard from "./hardware/HeltecBoard";
+import VsdFpgaBoard from "./hardware/VsdFpgaBoard";
+import Ad5933Board from "./hardware/Ad5933Board";
+import ChamberDualWell from "./hardware/ChamberDualWell";
 
 export interface HardwareComp {
   id: string;
@@ -15,7 +19,7 @@ export interface HardwareComp {
 }
 
 export const HARDWARE_COMPS: HardwareComp[] = [
-  { id: "chamber", shortName: "CHAMBER", fullName: "Sample Chamber", chipColor: "#2a6f97", basePosition: [-4.0, 0, 0], size: [1.4, 0.9, 1.4] },
+  { id: "chamber", shortName: "DUAL CHAMBER", fullName: "PHENORA Dual Sample & Control Chamber", chipColor: "#2a6f97", basePosition: [-4.0, 0, 0], size: [1.6, 0.5, 1.1] },
   { id: "ad5933",  shortName: "AD5933",  fullName: "AD5933 Impedance IC", chipColor: "#7b2d8b", basePosition: [-1.6, 0, 0], size: [1.0, 0.14, 1.0] },
   { id: "heltec",  shortName: "ESP32-S3",fullName: "Heltec ESP32-S3", chipColor: "#0a6b55", basePosition: [0.9, 0, 0], size: [1.4, 0.18, 1.0] },
   { id: "fpga",    shortName: "iCE40",   fullName: "iCE40UP5K FPGA", chipColor: "#8b0036", basePosition: [3.1, 0, 0], size: [1.1, 0.14, 1.1] },
@@ -161,16 +165,16 @@ function SceneContent({ cellConcentration, conductivity, temperature, activePhas
 
   return (
     <>
-      <ambientLight intensity={0.58} />
-      <directionalLight position={[8, 14, 8]} intensity={1.1} />
-      <directionalLight position={[-6, 6, -6]} intensity={0.28} />
+      <ambientLight intensity={0.8} />
+      <directionalLight position={[8, 14, 8]} intensity={1.3} />
+      <directionalLight position={[-6, 6, -6]} intensity={0.4} />
       {!isExploded && (
         <mesh position={[0, -0.42, 0]}>
           <boxGeometry args={[10, 0.06, 2.8]} />
-          <meshStandardMaterial color="#040d1a" roughness={0.85} metalness={0.18} />
+          <meshStandardMaterial color="#cbd5e1" roughness={0.7} metalness={0.1} />
         </mesh>
       )}
-      <gridHelper args={[18, 18, "#17B169", "#0b1826"]} position={[0, -0.55, 0]} />
+      <gridHelper args={[18, 18, "#059669", "#94a3b8"]} position={[0, -0.55, 0]} />
 
       {HARDWARE_COMPS.map(comp => {
         const pos = getPos(comp);
@@ -178,45 +182,45 @@ function SceneContent({ cellConcentration, conductivity, temperature, activePhas
         const highlighted = selectedId === comp.id;
         return (
           <group key={comp.id} position={pos}>
-            <mesh onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
-              <boxGeometry args={comp.size} />
-              <meshStandardMaterial
-                color={phaseActive ? "#17B169" : highlighted ? "#1e4d3a" : comp.chipColor}
-                emissive={phaseActive ? "#17B169" : highlighted ? "#17B169" : "#000"}
-                emissiveIntensity={phaseActive ? 0.65 : highlighted ? 0.22 : 0}
-                roughness={0.32}
-                metalness={0.52}
-              />
-            </mesh>
-            {comp.id !== "chamber" && (
-              <mesh position={[0, comp.size[1] / 2 + 0.002, 0]}>
-                <planeGeometry args={[comp.size[0] * 0.85, comp.size[2] * 0.85]} />
-                <meshStandardMaterial color={highlighted || phaseActive ? "#17B169" : comp.chipColor} opacity={0.35} transparent roughness={1} />
+            {comp.id === "chamber" ? (
+              <group onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
+                <ChamberDualWell
+                  highlighted={highlighted}
+                  phaseActive={phaseActive}
+                  cellConcentration={cellConcentration}
+                  conductivity={conductivity}
+                  temperature={temperature}
+                />
+              </group>
+            ) : comp.id === "heltec" ? (
+              <group onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
+                <HeltecBoard highlighted={highlighted} phaseActive={phaseActive} />
+              </group>
+            ) : comp.id === "fpga" ? (
+              <group onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
+                <VsdFpgaBoard highlighted={highlighted} phaseActive={phaseActive} />
+              </group>
+            ) : comp.id === "ad5933" ? (
+              <group onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
+                <Ad5933Board highlighted={highlighted} phaseActive={phaseActive} />
+              </group>
+            ) : (
+              <mesh onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
+                <boxGeometry args={comp.size} />
+                <meshStandardMaterial
+                  color={phaseActive ? "#059669" : highlighted ? "#047857" : comp.chipColor}
+                  emissive={phaseActive ? "#059669" : highlighted ? "#059669" : "#000"}
+                  emissiveIntensity={phaseActive ? 0.65 : highlighted ? 0.22 : 0}
+                  roughness={0.32}
+                  metalness={0.52}
+                />
               </mesh>
             )}
-            {comp.id === "chamber" && (
-              <>
-                <mesh position={[-0.56, 0, 0]}>
-                  <boxGeometry args={[0.07, 0.72, 1.0]} />
-                  <meshStandardMaterial color="#ffb703" roughness={0.18} metalness={0.92} />
-                </mesh>
-                <mesh position={[0.56, 0, 0]}>
-                  <boxGeometry args={[0.07, 0.72, 1.0]} />
-                  <meshStandardMaterial color="#ffb703" roughness={0.18} metalness={0.92} />
-                </mesh>
-                <mesh>
-                  <boxGeometry args={[1.0, 0.72, 1.0]} />
-                  <meshStandardMaterial color="#0A192F" transparent opacity={0.1} roughness={0.05} metalness={0.95} side={THREE.DoubleSide} />
-                </mesh>
-                <CellularInclusions concentration={cellConcentration} />
-                <MeasurementFlow conductivity={conductivity} temperature={temperature} active={measurementActive} />
-              </>
-            )}
             <Html position={[0, comp.size[1] / 2 + 0.38, 0]} center distanceFactor={9}>
-              <div className={`px-1.5 py-0.5 rounded text-[8px] font-bold tracking-wider uppercase whitespace-nowrap pointer-events-none border ${
-                phaseActive ? "bg-[#17B169] text-[#0A192F] border-[#17B169]"
-                : highlighted ? "bg-[#17B169]/20 text-[#17B169] border-[#17B169]/50"
-                : "bg-[#081526]/90 text-gray-500 border-gray-700"
+              <div className={`px-2 py-0.5 rounded text-[8px] font-black tracking-wider uppercase whitespace-nowrap pointer-events-none border shadow-sm ${
+                phaseActive ? "bg-[#059669] text-white border-[#059669]"
+                : highlighted ? "bg-emerald-100 text-[#059669] border-emerald-400"
+                : "bg-white/95 text-slate-700 border-slate-300"
               }`}>{comp.shortName}</div>
             </Html>
           </group>
@@ -249,24 +253,24 @@ export default function SimulationScene(props: SimulationSceneProps) {
   }, []);
 
   if (!mounted) return (
-    <div className="w-full h-full bg-[#081526] flex items-center justify-center border border-gray-800 rounded-xl">
-      <span className="text-[#17B169] text-xs font-semibold tracking-widest animate-pulse">LOADING SIMULATOR...</span>
+    <div className="w-full h-full bg-slate-100 flex items-center justify-center border border-slate-200 rounded-xl">
+      <span className="text-[#059669] text-xs font-black tracking-widest animate-pulse">LOADING SIMULATOR...</span>
     </div>
   );
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative bg-slate-50 rounded-xl overflow-hidden">
       <Canvas camera={{ position: [0, 5.5, 10], fov: 40 }}>
         <SceneContent {...props} ctrlRef={ctrlRef} />
       </Canvas>
-      <div className="absolute top-3 left-3 bg-[#0A192F]/88 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-gray-800 pointer-events-none">
-        <span className="text-[10px] text-[#17B169] font-extrabold tracking-widest block uppercase">PHENORA V1 Hardware Chain</span>
-        <span className="text-[9px] text-gray-500 tracking-wide">Click to inspect / Drag to rotate / Scroll to zoom</span>
+      <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-200 shadow-md pointer-events-none">
+        <span className="text-[10px] text-[#059669] font-black tracking-widest block uppercase">PHENORA V1 Hardware Chain</span>
+        <span className="text-[9px] text-slate-500 font-medium tracking-wide">Click to inspect / Drag to rotate / Scroll to zoom</span>
       </div>
-      <div className="absolute bottom-3 left-3 bg-[#0A192F]/88 backdrop-blur-sm px-2 py-1 rounded border border-gray-800 pointer-events-none max-w-[280px]">
-        <span className="text-[8px] text-gray-600 leading-tight block">x Cellular inclusions - schematic / x Signal flow - measurement visualization</span>
+      <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-md border border-slate-200 shadow-md pointer-events-none max-w-[280px]">
+        <span className="text-[8px] text-slate-600 font-medium leading-tight block">x Cellular inclusions - schematic / x Signal flow - measurement visualization</span>
       </div>
-      <button onClick={() => ctrlRef.current?.reset()} className="absolute top-3 right-3 px-2.5 py-1 rounded bg-[#0A192F]/88 border border-gray-700 text-[9px] text-gray-400 hover:text-white hover:border-gray-500 font-bold tracking-wider uppercase transition-colors cursor-pointer">
+      <button onClick={() => ctrlRef.current?.reset()} className="absolute top-3 right-3 px-3 py-1.5 rounded-md bg-white border border-slate-300 text-[9px] text-slate-700 hover:text-slate-900 hover:border-slate-400 font-bold tracking-wider uppercase shadow-sm transition-colors cursor-pointer">
         Reset View
       </button>
     </div>

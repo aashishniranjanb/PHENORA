@@ -5,49 +5,29 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { Play, RotateCcw, Box, Eye, Layers } from "lucide-react";
+import HeltecBoard from "../simulation/hardware/HeltecBoard";
+import VsdFpgaBoard from "../simulation/hardware/VsdFpgaBoard";
+import Ad5933Board from "../simulation/hardware/Ad5933Board";
+import ChamberDualWell from "../simulation/hardware/ChamberDualWell";
 
 // Individual components in the V1 device
 const COMPONENTS = [
   {
-    id: "control-well",
-    name: "Control Well",
-    position: [-2.5, 0.5, 1],
+    id: "chamber",
+    name: "Dual Sample Chamber",
+    position: [-3.2, 0.25, 0],
     color: "#2a6f97",
-    size: [0.8, 1, 0.8],
-    shape: "cylinder",
-    description: "Contains the control suspension of bacteria in medium to establish baseline metabolic and growth behavior.",
-    input: "Biological sample in growth broth",
-    output: "Baseline differential electrical signal"
-  },
-  {
-    id: "test-well",
-    name: "Test Well",
-    position: [-2.5, 0.5, -1],
-    color: "#d90429",
-    size: [0.8, 1, 0.8],
-    shape: "cylinder",
-    description: "Contains the test suspension of bacteria in medium exposed to a specific antibiotic concentration.",
-    input: "Biological sample + antibiotic agent",
-    output: "Treated differential electrical signal"
-  },
-  {
-    id: "electrodes",
-    name: "Electrodes",
-    position: [-2.5, 0.1, 0],
-    color: "#ffb703",
-    size: [0.2, 0.1, 2.5],
-    shape: "box",
-    description: "Dual-channel electrical micro-electrode interface applying AC excitation into the wells.",
-    input: "AC voltage excitation signal",
-    output: "Current response proportional to impedance"
+    size: [1.6, 0.5, 1.1],
+    description: "Contains isolated Control (medium only) and Test (medium + antibiotic) wells with 4-point gold electrode arrays.",
+    input: "Biological samples & AC excitation",
+    output: "Differential current responses"
   },
   {
     id: "ad5933",
     name: "AD5933 Analyzer",
-    position: [-0.5, 0.15, 0],
+    position: [-1.0, 0.15, 0],
     color: "#8338ec",
     size: [1, 0.2, 1],
-    shape: "box",
     description: "Integrated network impedance analyzer generating frequency sweeps (up to 100 kHz) and performing on-board Discrete Fourier Transform (DFT).",
     input: "Current response from electrodes",
     output: "Real (R) and Imaginary (I) registers via I2C"
@@ -55,10 +35,9 @@ const COMPONENTS = [
   {
     id: "heltec",
     name: "Heltec ESP32-S3",
-    position: [1.5, 0.25, 0.8],
+    position: [1.2, 0.25, 0.6],
     color: "#06d6a0",
     size: [1.8, 0.2, 1],
-    shape: "box",
     description: "Dual-core processor configuration. Controls the AD5933 sweep parameters via I2C and calculates impedance magnitude and phase features.",
     input: "R/I registers via I2C",
     output: "Impedance magnitude and phase feature streams via UART"
@@ -66,10 +45,9 @@ const COMPONENTS = [
   {
     id: "fpga",
     name: "VSDSquadron FPGA",
-    position: [3.5, 0.2, -0.6],
+    position: [3.4, 0.2, -0.4],
     color: "#ff006e",
     size: [1.2, 0.15, 1.2],
-    shape: "box",
     description: "Executes real-time digital filtering, computes differential slope statistics, and controls the adaptive SUSCEPTIBLE / RESISTANT / MEASURE AGAIN decision loops.",
     input: "UART features from Heltec",
     output: "Decisive status flags (STOP / REPEAT)"
@@ -78,14 +56,14 @@ const COMPONENTS = [
 
 const ANIMATION_STEPS = [
   {
-    title: "1. Sample Preparation",
-    desc: "Bacterial suspensions are placed in the Control and Test wells.",
-    compId: "control-well"
+    title: "1. Dual Sample Preparation",
+    desc: "Bacterial suspensions are placed in isolated Control and Test wells.",
+    compId: "chamber"
   },
   {
-    title: "2. Electrode Excitation",
-    desc: "AC voltage excitation is injected through the gold electrode pins.",
-    compId: "electrodes"
+    title: "2. Differential Electrode Excitation",
+    desc: "AC voltage excitation is injected through gold pogo pin electrodes.",
+    compId: "chamber"
   },
   {
     title: "3. AD5933 DFT Analyzer",
@@ -140,12 +118,10 @@ function ModelScene({
         // Exploded position offsets
         let pos = [...comp.position] as [number, number, number];
         if (isExploded) {
-          if (comp.id === "control-well") pos = [-2.5, 1.6, 1.8];
-          if (comp.id === "test-well") pos = [-2.5, 1.6, -1.8];
-          if (comp.id === "electrodes") pos = [-2.5, -0.5, 0];
-          if (comp.id === "ad5933") pos = [-0.5, 1.2, 0];
-          if (comp.id === "heltec") pos = [1.5, 1.2, 1.5];
-          if (comp.id === "fpga") pos = [3.5, 1.2, -1.2];
+          if (comp.id === "chamber") pos = [-3.2, 1.4, 0];
+          if (comp.id === "ad5933") pos = [-1.0, 1.0, 0];
+          if (comp.id === "heltec") pos = [1.2, 1.0, 1.2];
+          if (comp.id === "fpga") pos = [3.4, 1.0, -1.0];
         }
 
         // Check if component is selected or active in current animation step
@@ -156,47 +132,44 @@ function ModelScene({
           const stepConfig = ANIMATION_STEPS[animationStep];
           if (stepConfig.compId === comp.id) {
             isAnimated = true;
-          } else if (stepConfig.compId === "control-well" && comp.id === "test-well") {
-            isAnimated = true; // highlight both wells on step 1
           }
         }
 
         const isHighlighted = isSelected || isAnimated;
 
         return (
-          <mesh
+          <group
             key={comp.id}
             position={pos}
             onClick={(e) => {
               e.stopPropagation();
               onSelect(comp);
             }}
-            className="cursor-pointer"
           >
-            {comp.shape === "cylinder" ? (
-              <cylinderGeometry args={[comp.size[0], comp.size[0], comp.size[1], 32]} />
+            {comp.id === "chamber" ? (
+              <ChamberDualWell highlighted={isHighlighted} phaseActive={isAnimated} />
+            ) : comp.id === "ad5933" ? (
+              <Ad5933Board highlighted={isHighlighted} phaseActive={isAnimated} />
+            ) : comp.id === "heltec" ? (
+              <HeltecBoard highlighted={isHighlighted} phaseActive={isAnimated} />
+            ) : comp.id === "fpga" ? (
+              <VsdFpgaBoard highlighted={isHighlighted} phaseActive={isAnimated} />
             ) : (
-              <boxGeometry args={comp.size as [number, number, number]} />
+              <mesh>
+                <boxGeometry args={comp.size as [number, number, number]} />
+                <meshStandardMaterial color={comp.color} />
+              </mesh>
             )}
-            <meshStandardMaterial
-              color={isHighlighted ? "#17B169" : comp.color}
-              emissive={isHighlighted ? "#17B169" : "#000000"}
-              emissiveIntensity={isHighlighted ? (isAnimated ? 0.6 : 0.4) : 0}
-              roughness={0.2}
-              metalness={0.5}
-            />
-          </mesh>
+          </group>
         );
       })}
 
       {/* Stylized signal line connections (Hide if exploded to represent disassembled components) */}
       {!isExploded && (
         <>
-          <Line start={[-2.5, 0.1, 1]} end={[-2.5, 0.1, 0]} color="#ffb703" />
-          <Line start={[-2.5, 0.1, -1]} end={[-2.5, 0.1, 0]} color="#ffb703" />
-          <Line start={[-2.5, 0.1, 0]} end={[-0.5, 0.1, 0]} color="#8338ec" />
-          <Line start={[-0.5, 0.1, 0]} end={[1.5, 0.1, 0.8]} color="#06d6a0" />
-          <Line start={[1.5, 0.1, 0.8]} end={[3.5, 0.1, -0.6]} color="#ff006e" />
+          <Line start={[-2.4, 0.1, 0]} end={[-1.0, 0.1, 0]} color="#17B169" />
+          <Line start={[-1.0, 0.1, 0]} end={[1.2, 0.1, 0.6]} color="#8338ec" />
+          <Line start={[1.2, 0.1, 0.6]} end={[3.4, 0.1, -0.4]} color="#06d6a0" />
         </>
       )}
 
