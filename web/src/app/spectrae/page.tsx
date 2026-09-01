@@ -9,6 +9,7 @@ import AdaptiveDecisionPanel from "@/components/simulation/AdaptiveDecisionPanel
 import MeasurementQuality from "@/components/simulation/MeasurementQuality";
 import TechnicalDetails from "@/components/simulation/TechnicalDetails";
 import GeneralPublicMode from "@/components/simulation/GeneralPublicMode";
+import AmrieInterpretationPanel from "@/components/simulation/AmrieInterpretationPanel";
 import { Play, Pause, RotateCcw, Cpu, ShieldAlert, Layers, ChevronRight, HelpCircle } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -77,7 +78,7 @@ export default function SimulationLab() {
   const [tIdx, setTIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [mode, setMode] = useState<"explore" | "demo">("explore");
-  const [selectedId, setSelectedId] = useState<string | null>("chamber");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [exploded, setExploded] = useState(false);
   
   // Model Parameters
@@ -121,6 +122,41 @@ export default function SimulationLab() {
     }
     return () => clearInterval(interval);
   }, [playing, dsKey, data]);
+
+  // Synchronize simState with trajectory point in explore mode
+  useEffect(() => {
+    if (mode === "explore" && data) {
+      const activeDsKey = DATASET_INTERNAL[dsKey];
+      const traj = data?.[activeDsKey]?.trajectory;
+      if (traj && traj[tIdx]) {
+        const progressRatio = tIdx / Math.max(1, traj.length - 1);
+        
+        if (progressRatio < 0.08) {
+          setSimState("READY");
+        } else if (progressRatio < 0.18) {
+          setSimState("INITIALIZING");
+        } else if (progressRatio < 0.30) {
+          setSimState("BASELINE");
+        } else if (progressRatio < 0.50) {
+          setSimState("MEASURING");
+        } else if (progressRatio < 0.68) {
+          setSimState("ANALYZING");
+        } else if (progressRatio < 0.78) {
+          setSimState("QUALITY_CHECK");
+        } else {
+          if (dsKey === "trajectory_a") {
+            setSimState("STOP");
+          } else {
+            if (progressRatio < 0.90) {
+              setSimState("MEASURE_AGAIN");
+            } else {
+              setSimState("STOP");
+            }
+          }
+        }
+      }
+    }
+  }, [mode, tIdx, data, dsKey]);
 
   // Unified State Machine Handler for Demo Mode
   const [phaseRunning, setPhaseRunning] = useState(false);
@@ -262,7 +298,9 @@ export default function SimulationLab() {
     INVALID: 6,
   };
 
-  const currentStep = STATE_STEP_MAP[simState];
+  const currentStep = (tIdx >= trajectory.length - 1 && (simState === "STOP" || simState === "INVALID")) 
+    ? 7 
+    : STATE_STEP_MAP[simState];
 
   return (
     <div className="bg-slate-50 min-h-screen py-10 text-slate-900">
@@ -337,6 +375,7 @@ export default function SimulationLab() {
               conductivity={conductivity}
               temperature={temperature}
               activePhase={activePhase}
+              currentStep={currentStep}
               selectedId={selectedId}
               onSelect={(id) => {
                 setSelectedId(id);
@@ -743,9 +782,8 @@ export default function SimulationLab() {
                   />
                 )}
 
-                {/* 1kHz measurement index indicator */}
-                <line x1={freqToX(3, sweepData.length)} y1="10" x2={freqToX(3, sweepData.length)} y2={SH} stroke="#d97706" strokeWidth="1.5" strokeDasharray="3,3" />
-
+                {/* 1kHz measurement index indicator removed */}
+                
                 <text x={SX} y="198" fill="#64748b" fontSize="7" fontWeight="bold" textAnchor="middle">100Hz</text>
                 <text x="264" y="198" fill="#64748b" fontSize="7" fontWeight="bold" textAnchor="middle">10kHz</text>
                 <text x="488" y="198" fill="#64748b" fontSize="7" fontWeight="bold" textAnchor="middle">100kHz</text>
@@ -758,9 +796,70 @@ export default function SimulationLab() {
                 Rs={Rs}Ω · Rct={Rct}Ω · Cdl={Cdl}µF
               </div>
             </div>
-            <span className="text-[8px] text-slate-500 font-medium block mt-1.5 text-center">
-              Z(f) calculated via Randles cell boundary model. Dash index at 1kHz highlights current feature frequency.
-            </span>
+            
+            <div className="text-[8px] text-slate-500 font-medium mt-1.5 text-center leading-snug">
+              {sweepTab === "mag" ? (
+                <div className="flex flex-col items-center justify-center space-y-1">
+                  <div className="flex items-center space-x-3">
+                    <div className="font-bold flex items-center">
+                      <span>|Z(f)| =</span>
+                      <span className="flex items-center ml-1">
+                        <span className="text-[10px] leading-none mt-[-1px] mr-[-1px]">√</span>
+                        <span className="border-t-[1.5px] border-slate-600 pt-[1px]">Re(Z)² + Im(Z)²</span>
+                      </span>
+                    </div>
+                    <span className="font-mono">ω = 2πf</span>
+                  </div>
+                  <div className="flex items-center space-x-5 mt-1">
+                    <span className="flex items-center">
+                      Re(Z) = R<sub>s</sub> + 
+                      <span className="inline-flex flex-col items-center align-middle mx-1 leading-[1.1]">
+                        <span className="border-b border-slate-400 pb-0.5 mb-0.5">R<sub>ct</sub></span>
+                        <span>1 + (ω·R<sub>ct</sub>·C<sub>dl</sub>)²</span>
+                      </span>
+                    </span>
+                    <span className="flex items-center">
+                      Im(Z) = -
+                      <span className="inline-flex flex-col items-center align-middle mx-1 leading-[1.1]">
+                        <span className="border-b border-slate-400 pb-0.5 mb-0.5">ω·R<sub>ct</sub>²·C<sub>dl</sub></span>
+                        <span>1 + (ω·R<sub>ct</sub>·C<sub>dl</sub>)²</span>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center space-y-1">
+                  <div className="flex items-center space-x-3">
+                    <div className="font-bold flex items-center text-slate-700">
+                      <span>ϕ(f) = tan<sup>−1</sup></span>
+                      <span className="text-[16px] leading-none ml-1 mr-0.5 mt-[-2px] font-light">(</span>
+                      <span className="inline-flex flex-col items-center align-middle mx-0.5 leading-[1.1] font-bold">
+                        <span className="border-b-[1.5px] border-slate-600 pb-[1px] mb-[1px] px-[1px]">Im[Z(f)]</span>
+                        <span>Re[Z(f)]</span>
+                      </span>
+                      <span className="text-[16px] leading-none ml-0.5 mt-[-2px] font-light">)</span>
+                    </div>
+                    <span className="font-mono">ω = 2πf</span>
+                  </div>
+                  <div className="flex items-center space-x-5 mt-1">
+                    <span className="flex items-center">
+                      Re(Z) = R<sub>s</sub> + 
+                      <span className="inline-flex flex-col items-center align-middle mx-1 leading-[1.1]">
+                        <span className="border-b border-slate-400 pb-0.5 mb-0.5">R<sub>ct</sub></span>
+                        <span>1 + (ω·R<sub>ct</sub>·C<sub>dl</sub>)²</span>
+                      </span>
+                    </span>
+                    <span className="flex items-center">
+                      Im(Z) = -
+                      <span className="inline-flex flex-col items-center align-middle mx-1 leading-[1.1]">
+                        <span className="border-b border-slate-400 pb-0.5 mb-0.5">ω·R<sub>ct</sub>²·C<sub>dl</sub></span>
+                        <span>1 + (ω·R<sub>ct</sub>·C<sub>dl</sub>)²</span>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Differential Signal ΔF plot */}
@@ -768,7 +867,9 @@ export default function SimulationLab() {
             <span className="text-[10px] text-[#059669] font-black tracking-widest uppercase block">
               Differential Output
             </span>
-            <h3 className="text-slate-900 text-sm font-extrabold mb-3">F_control, F_test, and Delta |ΔF|</h3>
+            <h3 className="text-slate-900 text-sm font-extrabold mb-3">
+              F<sub>control</sub>, F<sub>test</sub>, and Δ |ΔF|
+            </h3>
 
             <div className="w-full h-56 bg-slate-50 rounded border border-slate-200 relative">
               <svg viewBox="0 0 500 210" className="w-full h-full">
@@ -816,9 +917,17 @@ export default function SimulationLab() {
                 <div className="flex items-center gap-1.5"><span className="w-2.5 border-t border-dashed border-[#059669] inline-block" /><span className="text-[#059669]">|ΔF|</span></div>
               </div>
             </div>
-            <span className="text-[8px] text-slate-500 font-medium block mt-1.5 text-center">
-              F = impedance feature at 1kHz. ΔF = F_test − F_control. Notice signal divergence at elapsed hours.
-            </span>
+            <div className="text-[8px] text-slate-500 font-medium mt-1.5 text-center leading-snug">
+              <div className="flex flex-col items-center justify-center space-y-1">
+                <div className="flex items-center space-x-3">
+                  <span className="font-bold text-slate-600">ΔF = F<sub>test</sub> − F<sub>control</sub></span>
+                </div>
+                <div className="flex items-center space-x-5 mt-1 opacity-90">
+                  <span className="font-mono">F = impedance feature at 1kHz</span>
+                  <span className="font-mono">Notice signal divergence at elapsed hours</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -860,6 +969,11 @@ export default function SimulationLab() {
             electrodeGood={true}
             overall={simState === "STOP" ? "VALID" : simState === "INVALID" ? "INVALID" : "MEASURE AGAIN"}
           />
+        </div>
+
+        {/* AMRIE INTERPRETATION PANEL */}
+        <div className="mb-5">
+          <AmrieInterpretationPanel state={simState} trajectoryType={dsKey} />
         </div>
 
         {/* ELMER FEM SOLVER */}

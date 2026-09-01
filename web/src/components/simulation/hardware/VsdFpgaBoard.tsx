@@ -2,20 +2,51 @@
 
 import { useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 
 interface BoardProps {
   highlighted: boolean;
   phaseActive: boolean;
+  currentStep?: number;
 }
 
-export default function VsdFpgaBoard({ highlighted, phaseActive }: BoardProps) {
+export default function VsdFpgaBoard({ highlighted, phaseActive, currentStep = 0 }: BoardProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const glowRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
 
   const pcbColor = phaseActive ? "#ffe6f2" : highlighted ? "#eed4da" : "#fdfdfd";
   const activeColor = phaseActive ? "#ff0077" : highlighted ? "#8b0036" : "#2c2c2c";
 
+  useFrame((_, dt) => {
+    glowRefs.current.forEach((mat, i) => {
+      if (mat) {
+        const targetOp = highlighted ? [0.75, 0.4, 0.15][i] : 0;
+        mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, dt * 2.5);
+      }
+    });
+  });
+
   return (
     <group ref={groupRef}>
+      {/* Soft Blurry Glow Effect (3 Layers) */}
+      {[
+        { s: [1.05, 2.0, 1.05], id: 0 },
+        { s: [1.15, 3.5, 1.15], id: 1 },
+        { s: [1.28, 5.5, 1.28], id: 2 }
+      ].map((layer, i) => (
+        <mesh key={`glow-${layer.id}`} position={[0, 0, 0]}>
+          <boxGeometry args={[1.2 * layer.s[0], 0.04 * layer.s[1], 0.75 * layer.s[2]]} />
+          <meshBasicMaterial 
+            ref={el => { glowRefs.current[i] = el; }}
+            color="#f9a8d4" 
+            transparent
+            opacity={0}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+
       {/* 1. Main PCB Substrate */}
       <mesh castShadow receiveShadow position={[0, 0, 0]}>
         <boxGeometry args={[1.2, 0.04, 0.75]} />
@@ -111,6 +142,25 @@ export default function VsdFpgaBoard({ highlighted, phaseActive }: BoardProps) {
         <cylinderGeometry args={[0.02, 0.02, 0.02, 8]} />
         <meshStandardMaterial color="#ff3333" />
       </mesh>
+
+      {/* 8. Status Indicator LEDs */}
+      <group position={[-0.4, 0.05, 0.2]}>
+        {/* LED 1: Analyzing */}
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[0.03, 0.02, 0.03]} />
+          <meshStandardMaterial color={currentStep === 4 ? "#fbbf24" : "#451a03"} emissive={currentStep === 4 ? "#f59e0b" : "#000"} emissiveIntensity={currentStep === 4 ? 2 : 0} />
+        </mesh>
+        {/* LED 2: Quality */}
+        <mesh position={[0, 0, -0.06]}>
+          <boxGeometry args={[0.03, 0.02, 0.03]} />
+          <meshStandardMaterial color={currentStep === 5 ? "#60a5fa" : "#1e3a8a"} emissive={currentStep === 5 ? "#3b82f6" : "#000"} emissiveIntensity={currentStep === 5 ? 2 : 0} />
+        </mesh>
+        {/* LED 3: Halt Decision */}
+        <mesh position={[0, 0, -0.12]}>
+          <boxGeometry args={[0.03, 0.02, 0.03]} />
+          <meshStandardMaterial color={currentStep >= 6 ? "#34d399" : "#064e3b"} emissive={currentStep >= 6 ? "#10b981" : "#000"} emissiveIntensity={currentStep >= 6 ? 2 : 0} />
+        </mesh>
+      </group>
     </group>
   );
 }
