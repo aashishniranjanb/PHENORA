@@ -15,22 +15,54 @@ export interface SignalFeatures {
   drift: number;
 }
 
-export interface MLResult {
-  qualityScore: number;
-  anomalyScore: number;
-
-  trajectory: Trajectory;
-  trajectoryConfidence: number;
-}
-
-export type Trajectory =
+export type SignalTrajectory =
   | "STABLE"
   | "RISING"
   | "FALLING"
-  | "TRANSITION"
   | "NOISY"
   | "DRIFTING"
-  | "UNRESOLVED";
+  | "TRANSITION"
+  | "UNKNOWN";
+
+export type Trajectory = SignalTrajectory | "UNRESOLVED";
+
+export interface ModelMetadata {
+  modelName: string;
+  modelVersion: string;
+  trained: boolean;
+  trainingSource:
+    | "SYNTHETIC"
+    | "ELECTRICAL_VALIDATION"
+    | "BIOLOGICAL"
+    | "UNKNOWN";
+  featureVersion: string;
+}
+
+export interface MLResult {
+  timestamp: number;
+
+  signalQuality: number;
+  anomalyScore: number;
+
+  trajectory: SignalTrajectory;
+  trajectoryConfidence: number;
+
+  confidence: number;
+
+  usable: boolean;
+
+  reasons: string[];
+
+  model: ModelMetadata;
+
+  /** Alias for backward compatibility */
+  qualityScore?: number;
+}
+
+export interface DecisionInput {
+  signal: SignalFeatures;
+  intelligence: MLResult;
+}
 
 export interface EvidenceResult {
   evidenceScore: number;
