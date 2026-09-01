@@ -32,8 +32,9 @@ export interface SimulationSceneProps {
   conductivity: number;
   temperature: number;
   activePhase: number | null;
+  currentStep: number;
   selectedId: string | null;
-  onSelect: (id: string) => void;
+  onSelect: (id: string | null) => void;
   isExploded: boolean;
 }
 
@@ -97,28 +98,58 @@ function MeasurementFlow({ conductivity, temperature, active }: { conductivity: 
   );
 }
 
-function DataPulse({ from, to, color, active, offset = 0 }: { from: [number, number, number]; to: [number, number, number]; color: string; active: boolean; offset?: number }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const progress = useRef(offset);
+function DataPulse({ points, color, active, animType = "analog" }: { points: [number, number, number][]; color: string; active: boolean; animType?: "analog" | "i2c" | "uart" }) {
+  const curve = useMemo(() => new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)), false, "catmullrom", 0.3), [points]);
+  
+  const count = animType === "analog" ? 15 : animType === "i2c" ? 8 : 4;
+  const meshesRef = useRef<(THREE.Mesh | null)[]>([]);
+  const progress = useRef(0);
+
   useFrame((_, dt) => {
-    if (!ref.current || !active) return;
-    progress.current = (progress.current + dt * 0.65) % 1;
-    const t = progress.current;
-    ref.current.position.set(
-      from[0] + (to[0] - from[0]) * t,
-      from[1] + (to[1] - from[1]) * t,
-      from[2] + (to[2] - from[2]) * t
-    );
+    if (!active) return;
+    
+    let speed = 0.65;
+    if (animType === "analog") speed = 0.25; 
+    if (animType === "i2c") speed = 1.2; 
+    if (animType === "uart") speed = 0.8;
+
+    progress.current = (progress.current + dt * speed) % 1;
+
+    meshesRef.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      let t = 0;
+      if (animType === "analog") {
+        t = (progress.current + i / count) % 1;
+      } else if (animType === "i2c") {
+        t = progress.current - (i * 0.02);
+      } else if (animType === "uart") {
+        t = progress.current - (i * 0.1);
+      }
+      
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+
+      const pos = curve.getPointAt(t);
+      mesh.position.copy(pos);
+      
+      const distFromEnds = Math.min(t, 1 - t);
+      const scale = Math.min(1, distFromEnds * 5);
+      mesh.scale.setScalar(scale);
+    });
   });
+
   return (
-    <mesh ref={ref} position={from} visible={active}>
-      <sphereGeometry args={[0.062, 10, 10]} />
-      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1.4} transparent opacity={0.92} />
-    </mesh>
+    <group visible={active}>
+      {Array.from({ length: count }).map((_, i) => (
+        <mesh key={i} ref={el => { meshesRef.current[i] = el; }}>
+          <sphereGeometry args={[animType === "analog" ? 0.04 : 0.06, 10, 10]} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={animType === "analog" ? 1.0 : 2.0} transparent opacity={0.9} />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
-// Realistic routed wire using TubeGeometry following a CatmullRomCurve3
 function RealisticWire({ points, color, active, radius = 0.025, label }: {
   points: [number, number, number][];
   color: string;
@@ -126,6 +157,7 @@ function RealisticWire({ points, color, active, radius = 0.025, label }: {
   radius?: number;
   label?: string;
 }) {
+  const [hovered, setHovered] = useState(false);
   const { tube, midPoint } = useMemo(() => {
     const curve = new THREE.CatmullRomCurve3(
       points.map(p => new THREE.Vector3(...p)),
@@ -139,7 +171,10 @@ function RealisticWire({ points, color, active, radius = 0.025, label }: {
   }, [points, radius]);
 
   return (
-    <>
+    <group
+      onPointerOver={e => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'pointer'; }}
+      onPointerOut={e => { e.stopPropagation(); setHovered(false); document.body.style.cursor = 'auto'; }}
+    >
       <mesh geometry={tube}>
         <meshStandardMaterial
           color={active ? color : "#94a3b8"}
@@ -162,10 +197,10 @@ function RealisticWire({ points, color, active, radius = 0.025, label }: {
       </mesh>
       {active && label && (
         <Html position={midPoint} center distanceFactor={10}>
-          <div className="text-[7px] text-slate-900 font-mono font-bold bg-white/95 px-1.5 py-0.5 rounded shadow-sm pointer-events-none whitespace-nowrap border border-slate-300">{label}</div>
+          <div className={`transition-opacity duration-300 text-[7px] text-slate-900 font-mono font-bold bg-white/95 px-1.5 py-0.5 rounded shadow-sm pointer-events-none whitespace-nowrap border border-slate-300 ${hovered ? "opacity-100" : "opacity-0"}`}>{label}</div>
         </Html>
       )}
-    </>
+    </group>
   );
 }
 
@@ -189,21 +224,118 @@ function GroundPlane() {
   );
 }
 
-function SceneContent({ cellConcentration, conductivity, temperature, activePhase, selectedId, onSelect, isExploded, ctrlRef }:
-  SimulationSceneProps & { ctrlRef: React.RefObject<any> }) {
+function AnimatedHardwareGroup({ comp, isExploded, isSelected, ctrlRef, onSelect, onHover, children }: any) {
+  const groupRef = useRef<THREE.Group>(null);
+  const EXPLODED_OFFSETS: Record<string, [number, number, number]> = {
+    chamber: [0, 3.0, 0],
+    ad5933: [0, 2.0, 0],
+    heltec: [0, 1.0, 0],
+    fpga: [0, 0.0, 0]
+  };
+
+  const targetPos = new THREE.Vector3(...comp.basePosition);
+  if (isExploded) {
+    const o = EXPLODED_OFFSETS[comp.id];
+    targetPos.add(new THREE.Vector3(o[0], o[1], o[2]));
+  }
+
+  useFrame((_, dt) => {
+    if (groupRef.current) {
+      groupRef.current.position.lerp(targetPos, dt * 5);
+    }
+  });
+
+  return (
+    <group 
+      ref={groupRef} 
+      onClick={e => { e.stopPropagation(); onSelect(comp.id); }}
+      onPointerOver={e => { e.stopPropagation(); onHover(comp.id); document.body.style.cursor = 'pointer'; }}
+      onPointerOut={e => { e.stopPropagation(); onHover(null); document.body.style.cursor = 'auto'; }}
+    >
+      {children}
+    </group>
+  );
+}
+
+function SceneContent({ cellConcentration, conductivity, temperature, activePhase, currentStep, selectedId, onSelect, isExploded, ctrlRef, autoRotate }:
+  SimulationSceneProps & { ctrlRef: React.RefObject<any>; autoRotate: boolean }) {
 
   const EXPLODED_OFFSETS: Record<string, [number, number, number]> = {
-    chamber: [0, 2.8, 0],
-    ad5933: [0, 1.0, 0],
-    heltec: [0, -0.8, 0],
-    fpga: [0, -2.4, 0]
+    chamber: [0, 3.0, 0],
+    ad5933: [0, 2.0, 0],
+    heltec: [0, 1.0, 0],
+    fpga: [0, 0.0, 0]
   };
 
-  const getPos = (c: HardwareComp): [number, number, number] => {
-    if (!isExploded) return c.basePosition;
-    const o = EXPLODED_OFFSETS[c.id];
-    return [c.basePosition[0] + o[0], c.basePosition[1] + o[1], c.basePosition[2] + o[2]];
-  };
+  const targetTarget = useRef<THREE.Vector3>(new THREE.Vector3(0, 0, 0));
+  const isAnimatingCam = useRef(false);
+  const keys = useRef({ w: false, a: false, s: false, d: false });
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent, isDown: boolean) => {
+      // Only capture WASD if user is not typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const k = e.key.toLowerCase();
+      if (keys.current.hasOwnProperty(k)) {
+        keys.current[k as keyof typeof keys.current] = isDown;
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => handleKey(e, true);
+    const onKeyUp = (e: KeyboardEvent) => handleKey(e, false);
+    
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedId) {
+      const comp = HARDWARE_COMPS.find(c => c.id === selectedId);
+      if (comp) {
+        const pos = new THREE.Vector3(...comp.basePosition);
+        if (isExploded) {
+          const o = EXPLODED_OFFSETS[comp.id];
+          pos.add(new THREE.Vector3(o[0], o[1], o[2]));
+        }
+        targetTarget.current.copy(pos);
+      }
+    } else {
+      targetTarget.current.set(0, 0, 0);
+    }
+    isAnimatingCam.current = true;
+  }, [selectedId, isExploded]);
+
+  useFrame((state, dt) => {
+    if (isAnimatingCam.current && ctrlRef.current) {
+      ctrlRef.current.target.lerp(targetTarget.current, dt * 4);
+      if (ctrlRef.current.target.distanceTo(targetTarget.current) < 0.02) {
+        ctrlRef.current.target.copy(targetTarget.current);
+        isAnimatingCam.current = false;
+      }
+    } else if (ctrlRef.current && !isAnimatingCam.current) {
+      // WASD Manual Panning (True 2D Screen Plane)
+      let moved = false;
+      const moveSpeed = 8.0 * dt;
+      const panOffset = new THREE.Vector3();
+      
+      const up = new THREE.Vector3(0, 1, 0).applyQuaternion(state.camera.quaternion);
+      const right = new THREE.Vector3(1, 0, 0).applyQuaternion(state.camera.quaternion);
+
+      if (keys.current.w) { panOffset.add(up.clone().multiplyScalar(moveSpeed)); moved = true; }
+      if (keys.current.s) { panOffset.sub(up.clone().multiplyScalar(moveSpeed)); moved = true; }
+      if (keys.current.a) { panOffset.sub(right.clone().multiplyScalar(moveSpeed)); moved = true; }
+      if (keys.current.d) { panOffset.add(right.clone().multiplyScalar(moveSpeed)); moved = true; }
+
+      if (moved) {
+        state.camera.position.add(panOffset);
+        ctrlRef.current.target.add(panOffset);
+      }
+    }
+  });
 
   const phaseGte = (n: number) => activePhase !== null && activePhase >= n;
 
@@ -290,53 +422,38 @@ function SceneContent({ cellConcentration, conductivity, temperature, activePhas
       <gridHelper args={[18, 18, "#059669", "#94a3b8"]} position={[0, -0.55, 0]} />
 
       {HARDWARE_COMPS.map(comp => {
-        const pos = getPos(comp);
         const phaseActive = activePhase !== null && PHASE_COMP[activePhase] === comp.id;
         const highlighted = selectedId === comp.id;
+        const isHovered = hoveredId === comp.id;
+        const showLabel = isHovered;
+
         return (
-          <group key={comp.id} position={pos}>
+          <AnimatedHardwareGroup 
+            key={comp.id} 
+            comp={comp} 
+            isExploded={isExploded} 
+            isSelected={highlighted} 
+            ctrlRef={ctrlRef}
+            onSelect={onSelect}
+            onHover={setHoveredId}
+          >
             {comp.id === "chamber" ? (
-              <group onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
-                <ChamberDualWell
-                  highlighted={highlighted}
-                  phaseActive={phaseActive}
-                  cellConcentration={cellConcentration}
-                  conductivity={conductivity}
-                  temperature={temperature}
-                />
-              </group>
+              <ChamberDualWell highlighted={highlighted} phaseActive={phaseActive} currentStep={currentStep} cellConcentration={cellConcentration} conductivity={conductivity} temperature={temperature} />
             ) : comp.id === "heltec" ? (
-              <group onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
-                <HeltecBoard highlighted={highlighted} phaseActive={phaseActive} />
-              </group>
+              <HeltecBoard highlighted={highlighted} phaseActive={phaseActive} currentStep={currentStep} />
             ) : comp.id === "fpga" ? (
-              <group onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
-                <VsdFpgaBoard highlighted={highlighted} phaseActive={phaseActive} />
-              </group>
+              <VsdFpgaBoard highlighted={highlighted} phaseActive={phaseActive} currentStep={currentStep} />
             ) : comp.id === "ad5933" ? (
-              <group onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
-                <Ad5933Board highlighted={highlighted} phaseActive={phaseActive} />
-              </group>
-            ) : (
-              <mesh onClick={e => { e.stopPropagation(); onSelect(comp.id); }}>
-                <boxGeometry args={comp.size} />
-                <meshStandardMaterial
-                  color={phaseActive ? "#059669" : highlighted ? "#047857" : comp.chipColor}
-                  emissive={phaseActive ? "#059669" : highlighted ? "#059669" : "#000"}
-                  emissiveIntensity={phaseActive ? 0.65 : highlighted ? 0.22 : 0}
-                  roughness={0.32}
-                  metalness={0.52}
-                />
-              </mesh>
-            )}
+              <Ad5933Board highlighted={highlighted} phaseActive={phaseActive} currentStep={currentStep} />
+            ) : null}
             <Html position={[0, comp.size[1] / 2 + 0.38, 0]} center distanceFactor={9}>
-              <div className={`px-2 py-0.5 rounded text-[8px] font-black tracking-wider uppercase whitespace-nowrap pointer-events-none border shadow-sm ${
+              <div className={`transition-opacity duration-300 px-2 py-0.5 rounded text-[8px] font-black tracking-wider uppercase whitespace-nowrap pointer-events-none border shadow-sm ${
                 phaseActive ? "bg-[#059669] text-white border-[#059669]"
                 : highlighted ? "bg-emerald-100 text-[#059669] border-emerald-400"
                 : "bg-white/95 text-slate-700 border-slate-300"
-              }`}>{comp.shortName}</div>
+              } ${showLabel ? "opacity-100" : "opacity-0"}`}>{comp.shortName}</div>
             </Html>
-          </group>
+          </AnimatedHardwareGroup>
         );
       })}
 
@@ -370,22 +487,22 @@ function SceneContent({ cellConcentration, conductivity, temperature, activePhas
           <ConnectorPin position={[3.1, 0.0, 0.22]} color="#059669" />
 
           {/* Data pulse particles flowing along wire paths */}
-          <DataPulse from={chamberToAd5933[0]} to={chamberToAd5933[4]} color="#7c3aed" active={phaseGte(2)} offset={0.0} />
-          <DataPulse from={chamberToAd5933[0]} to={chamberToAd5933[4]} color="#7c3aed" active={phaseGte(2)} offset={0.5} />
-          <DataPulse from={ad5933ToHeltec[0]} to={ad5933ToHeltec[4]} color="#2563eb" active={phaseGte(3)} offset={0.2} />
-          <DataPulse from={ad5933ToHeltec[0]} to={ad5933ToHeltec[4]} color="#2563eb" active={phaseGte(3)} offset={0.7} />
-          <DataPulse from={heltecToFpga[0]} to={heltecToFpga[4]} color="#059669" active={phaseGte(4)} offset={0.1} />
-          <DataPulse from={heltecToFpga[0]} to={heltecToFpga[4]} color="#059669" active={phaseGte(4)} offset={0.6} />
+          <DataPulse points={chamberToAd5933} color="#7c3aed" active={phaseGte(2)} animType="analog" />
+          <DataPulse points={chamberToAd5933Rear} color="#6d28d9" active={phaseGte(2)} animType="analog" />
+          <DataPulse points={ad5933ToHeltec} color="#2563eb" active={phaseGte(3)} animType="i2c" />
+          <DataPulse points={heltecToFpga} color="#059669" active={phaseGte(4)} animType="uart" />
         </>
       )}
-      <OrbitControls ref={ctrlRef} enableZoom minDistance={4} maxDistance={20} />
+      <OrbitControls ref={ctrlRef} enableZoom minDistance={4} maxDistance={20} autoRotate={autoRotate} autoRotateSpeed={1.5} zoomToCursor={true} />
     </>
   );
 }
 
 export default function SimulationScene(props: SimulationSceneProps) {
   const [mounted, setMounted] = useState(false);
+  const [autoRotate, setAutoRotate] = useState(false);
   const ctrlRef = useRef<any>(null);
+  
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -397,9 +514,9 @@ export default function SimulationScene(props: SimulationSceneProps) {
   );
 
   return (
-    <div className="w-full h-full relative bg-slate-50 rounded-xl overflow-hidden">
-      <Canvas camera={{ position: [0, 5.5, 10], fov: 40 }} shadows>
-        <SceneContent {...props} ctrlRef={ctrlRef} />
+    <div className="w-full h-full relative bg-slate-50 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500/50">
+      <Canvas camera={{ position: [0, 5.5, 10], fov: 40 }} shadows tabIndex={0}>
+        <SceneContent {...props} ctrlRef={ctrlRef} autoRotate={autoRotate} />
       </Canvas>
       <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-200 shadow-md pointer-events-none">
         <span className="text-[10px] text-[#059669] font-black tracking-widest block uppercase">PHENORA V1 Hardware Chain</span>
@@ -416,9 +533,14 @@ export default function SimulationScene(props: SimulationSceneProps) {
           <span className="flex items-center gap-1"><span className="w-2.5 h-1 bg-slate-800 rounded-full inline-block" /> GND</span>
         </div>
       </div>
-      <button onClick={() => ctrlRef.current?.reset()} className="absolute top-3 right-3 px-3 py-1.5 rounded-md bg-white border border-slate-300 text-[9px] text-slate-700 hover:text-slate-900 hover:border-slate-400 font-bold tracking-wider uppercase shadow-sm transition-colors cursor-pointer">
-        Reset View
-      </button>
+      <div className="absolute top-3 right-3 flex gap-2">
+        <button onClick={() => setAutoRotate(!autoRotate)} className={`px-3 py-1.5 rounded-md border text-[9px] font-bold tracking-wider uppercase shadow-sm transition-colors cursor-pointer ${autoRotate ? "bg-[#059669] text-white border-[#059669]" : "bg-white border-slate-300 text-slate-700 hover:text-slate-900 hover:border-slate-400"}`}>
+          Auto Rotate
+        </button>
+        <button onClick={() => { ctrlRef.current?.reset(); props.onSelect(null); }} className="px-3 py-1.5 rounded-md bg-white border border-slate-300 text-[9px] text-slate-700 hover:text-slate-900 hover:border-slate-400 font-bold tracking-wider uppercase shadow-sm transition-colors cursor-pointer">
+          Reset View
+        </button>
+      </div>
     </div>
   );
 }

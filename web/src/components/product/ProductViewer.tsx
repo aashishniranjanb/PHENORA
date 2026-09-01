@@ -110,7 +110,7 @@ function ModelScene({
       {/* PCB Base */}
       <mesh position={[0.5, -0.1, 0]}>
         <boxGeometry args={[9, 0.2, 4]} />
-        <meshStandardMaterial color="#05101E" roughness={0.7} metalness={0.2} />
+        <meshStandardMaterial color="#e2e8f0" roughness={0.7} metalness={0.2} />
       </mesh>
 
       {/* Components */}
@@ -239,8 +239,8 @@ export default function ProductViewer() {
 
   if (!mounted) {
     return (
-      <div className="w-full h-[450px] bg-[#0c1e36] rounded-xl flex items-center justify-center border border-gray-800">
-        <span className="text-[#17B169] text-xs font-semibold tracking-widest animate-pulse">LOADING 3D SYSTEM...</span>
+      <div className="w-full h-[450px] bg-slate-50 rounded-xl flex items-center justify-center border border-slate-200">
+        <span className="text-[#059669] text-xs font-semibold tracking-widest animate-pulse">LOADING 3D SYSTEM...</span>
       </div>
     );
   }
@@ -249,7 +249,7 @@ export default function ProductViewer() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       {/* 3D Scene View */}
-      <div className="lg:col-span-2 relative h-[450px] bg-[#081526] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
+      <div className="lg:col-span-2 relative h-[450px] bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
         <Canvas camera={{ position: [5, 4, 6], fov: 45 }}>
           <ModelScene
             onSelect={(comp) => {
@@ -264,13 +264,13 @@ export default function ProductViewer() {
         </Canvas>
 
         {/* Labels Overlay */}
-        <div className="absolute top-4 left-4 bg-[#0A192F]/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-gray-800 pointer-events-none">
-          <span className="text-[10px] text-gray-400 font-bold tracking-widest block uppercase">Interactive 3D V1 Assembly</span>
-          <span className="text-[9px] text-[#17B169] font-medium tracking-wide">Left click + drag to rotate • Scroll to zoom</span>
+        <div className="absolute top-4 left-4 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-200 pointer-events-none">
+          <span className="text-[10px] text-slate-500 font-bold tracking-widest block uppercase">Interactive 3D V1 Assembly</span>
+          <span className="text-[9px] text-[#059669] font-medium tracking-wide">Left click + drag to rotate • Scroll to zoom</span>
         </div>
 
         {/* Control Buttons bar */}
-        <div className="absolute bottom-4 left-4 flex items-center bg-[#0A192F]/90 backdrop-blur-md px-3 py-2 rounded-lg border border-gray-800 gap-3">
+        <div className="absolute bottom-4 left-4 flex items-center bg-white/90 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-200 gap-3">
           {/* Explode View Toggle */}
           <button
             onClick={() => {
@@ -279,7 +279,7 @@ export default function ProductViewer() {
             }}
             className={`flex items-center space-x-1 px-2.5 py-1.5 rounded text-[10px] font-bold tracking-wider uppercase border transition-all duration-200 cursor-pointer ${isExploded
                 ? "bg-[#ff006e] border-[#ff006e] text-white"
-                : "border-gray-700 text-gray-300 hover:border-gray-500 hover:bg-gray-800"
+                : "border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"
               }`}
             title="Slide elements apart to inspect internal well and electrode structures"
           >
@@ -294,8 +294,8 @@ export default function ProductViewer() {
               setIsExploded(false);
             }}
             className={`flex items-center space-x-1 px-2.5 py-1.5 rounded text-[10px] font-bold tracking-wider uppercase border transition-all duration-200 cursor-pointer ${isAnimating
-                ? "bg-[#17B169] border-[#17B169] text-[#0A192F]"
-                : "border-gray-700 text-gray-300 hover:border-gray-500 hover:bg-gray-800"
+                ? "bg-[#059669] border-[#059669] text-white"
+                : "border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"
               }`}
           >
             <Play className={`h-3.5 w-3.5 ${isAnimating ? "fill-current" : ""}`} />
@@ -305,7 +305,7 @@ export default function ProductViewer() {
           {/* Reset Camera Button */}
           <button
             onClick={handleResetCamera}
-            className="flex items-center space-x-1 px-2.5 py-1.5 rounded border border-gray-700 text-gray-300 hover:border-gray-500 hover:bg-gray-800 text-[10px] font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer"
+            className="flex items-center space-x-1 px-2.5 py-1.5 rounded border border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 text-[10px] font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             <span>Reset View</span>
@@ -314,11 +314,11 @@ export default function ProductViewer() {
 
         {/* Workflow Active Step Overlay */}
         {isAnimating && animationStep !== null && (
-          <div className="absolute top-4 right-4 bg-[#0A192F]/95 border border-[#17B169]/30 rounded-lg p-4 max-w-xs shadow-2xl animate-fade-in">
-            <h4 className="text-[#17B169] text-xs font-bold uppercase font-mono tracking-wider mb-1">
+          <div className="absolute top-4 right-4 bg-white/95 border border-[#17B169]/30 rounded-lg p-4 max-w-xs shadow-lg animate-fade-in">
+            <h4 className="text-[#059669] text-xs font-bold uppercase font-mono tracking-wider mb-1">
               {ANIMATION_STEPS[animationStep].title}
             </h4>
-            <p className="text-gray-300 text-[11px] leading-relaxed font-medium">
+            <p className="text-slate-600 text-[11px] leading-relaxed font-medium">
               {ANIMATION_STEPS[animationStep].desc}
             </p>
           </div>
@@ -326,31 +326,31 @@ export default function ProductViewer() {
       </div>
 
       {/* Component Details Card */}
-      <div className="bg-[#0A192F] border border-gray-800 rounded-xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
         {selectedComp ? (
           <div>
-            <span className="text-[10px] text-[#17B169] font-extrabold uppercase tracking-widest font-mono">
+            <span className="text-[10px] text-[#059669] font-extrabold uppercase tracking-widest font-mono">
               Selected Module
             </span>
-            <h3 className="text-white text-2xl font-extrabold mb-4">{selectedComp.name}</h3>
+            <h3 className="text-slate-900 text-2xl font-extrabold mb-4">{selectedComp.name}</h3>
 
             <div className="space-y-4">
               <div>
-                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block font-sans">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block font-sans">
                   Description
                 </span>
-                <p className="text-gray-300 text-xs leading-relaxed font-medium">{selectedComp.description}</p>
+                <p className="text-slate-600 text-xs leading-relaxed font-medium">{selectedComp.description}</p>
               </div>
 
               <div>
-                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block font-sans">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block font-sans">
                   Signal Input
                 </span>
                 <p className="text-[#06d6a0] text-xs font-mono font-bold">{selectedComp.input}</p>
               </div>
 
               <div>
-                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block font-sans">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block font-sans">
                   Signal Output
                 </span>
                 <p className="text-[#ff006e] text-xs font-mono font-bold">{selectedComp.output}</p>
@@ -359,13 +359,13 @@ export default function ProductViewer() {
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center text-center">
-            <p className="text-gray-500 text-xs">Click on any hardware component in the 3D model to inspect its details and signal properties.</p>
+            <p className="text-slate-500 text-xs">Click on any hardware component in the 3D model to inspect its details and signal properties.</p>
           </div>
         )}
 
         {/* Buttons List to select elements */}
-        <div className="mt-6 pt-4 border-t border-gray-800/80">
-          <span className="text-[9px] text-gray-500 font-bold block uppercase tracking-wider mb-2 font-mono">Quick Selection</span>
+        <div className="mt-6 pt-4 border-t border-slate-200">
+          <span className="text-[9px] text-slate-500 font-bold block uppercase tracking-wider mb-2 font-mono">Quick Selection</span>
           <div className="flex flex-wrap gap-2">
             {COMPONENTS.map((comp) => (
               <button
@@ -375,8 +375,8 @@ export default function ProductViewer() {
                   setSelectedComp(comp);
                 }}
                 className={`px-2 py-1 rounded text-[9px] font-bold tracking-widest uppercase transition-all duration-200 border cursor-pointer ${selectedComp?.id === comp.id
-                    ? "bg-[#17B169] border-[#17B169] text-[#0A192F]"
-                    : "bg-transparent border-gray-850 text-gray-400 hover:text-white hover:border-gray-700"
+                    ? "bg-[#059669] border-[#059669] text-white"
+                    : "bg-transparent border-slate-300 text-slate-500 hover:text-slate-900 hover:border-slate-400"
                   }`}
               >
                 {comp.name.split(" ")[0]}

@@ -52,11 +52,11 @@ export default function WorkflowTimeline({ activePhase, currentStep }: WorkflowT
               className={`border rounded-lg p-3 flex flex-col justify-between min-h-[100px] transition-all duration-300 ${borderCls}`}
             >
               <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[9px] font-mono font-bold text-slate-700">{step.id} {step.label}</span>
-                  <span className="text-[7.5px] font-bold font-mono px-1.5 py-0.5 rounded bg-white border border-slate-200 shadow-2xs">{statusText}</span>
+                <div className="flex justify-between items-start mb-1 gap-1">
+                  <span className="text-[8.5px] font-mono font-bold text-slate-700 leading-tight">{step.id} {step.label}</span>
+                  <span className="text-[7.5px] font-bold font-mono px-1.5 py-0.5 rounded bg-white border border-slate-200 shadow-2xs whitespace-nowrap flex-shrink-0 mt-0.5">{statusText}</span>
                 </div>
-                <p className="text-[9px] text-slate-600 leading-snug font-medium">{step.desc}</p>
+                <p className="text-[9px] text-slate-600 leading-snug font-medium mt-1">{step.desc}</p>
               </div>
             </div>
           );

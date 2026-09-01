@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import ProductViewer from "@/components/product/ProductViewer";
+import ShinyText from "@/components/ui/ShinyText";
+import BorderGlow from "@/components/ui/BorderGlow";
 import { ShieldAlert, ArrowRight, Activity, Layers, Cpu } from "lucide-react";
 
 export default function Home() {
@@ -18,8 +20,8 @@ export default function Home() {
               <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-[#059669] mb-6 border border-emerald-200 tracking-wider uppercase shadow-sm">
                 V1 Engineering Prototype Platform
               </span>
-              <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-none mb-6">
-                PHENORA
+              <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-none mb-6">
+                <ShinyText text="PHENORA" speed={2.5} color="#0f172a" shineColor="#059669" spread={140} />
               </h1>
               <div className="text-xl sm:text-2xl text-slate-700 font-bold tracking-wide mb-4">
                 <span className="text-[#059669]">Adaptive Impedance.</span> Biological Precision. Edge Intelligence.
@@ -47,17 +49,17 @@ export default function Home() {
               <div className="pt-6 border-t border-slate-200">
                 <span className="text-[10px] text-[#059669] font-black tracking-widest uppercase block mb-3">V1 System Signal Pipeline</span>
                 <div className="flex flex-wrap items-center gap-2 font-mono text-[9px] sm:text-[10px] text-slate-700">
-                  <span className="px-2.5 py-1 bg-slate-100 rounded border border-slate-200 text-slate-900 font-bold">SAMPLE</span>
+                  <BorderGlow glowColor="15, 23, 42" borderRadius={4} className="inline-block"><span className="px-2.5 py-1 bg-slate-100 rounded border border-slate-200 text-slate-900 font-bold block h-full w-full">SAMPLE</span></BorderGlow>
                   <span className="text-[#059669] font-bold">→</span>
-                  <span className="px-2.5 py-1 bg-amber-50 rounded border border-amber-200 text-amber-800 font-bold">ELECTRODES</span>
+                  <BorderGlow glowColor="217, 119, 6" borderRadius={4} className="inline-block"><span className="px-2.5 py-1 bg-amber-50 rounded border border-amber-200 text-amber-800 font-bold block h-full w-full">ELECTRODES</span></BorderGlow>
                   <span className="text-[#059669] font-bold">→</span>
-                  <span className="px-2.5 py-1 bg-purple-50 rounded border border-purple-200 text-purple-800 font-bold">AD5933</span>
+                  <BorderGlow glowColor="147, 51, 234" borderRadius={4} className="inline-block"><span className="px-2.5 py-1 bg-purple-50 rounded border border-purple-200 text-purple-800 font-bold block h-full w-full">AD5933</span></BorderGlow>
                   <span className="text-[#059669] font-bold">→</span>
-                  <span className="px-2.5 py-1 bg-emerald-50 rounded border border-emerald-200 text-emerald-800 font-bold">HELTEC ESP32-S3</span>
+                  <BorderGlow glowColor="5, 150, 105" borderRadius={4} className="inline-block"><span className="px-2.5 py-1 bg-emerald-50 rounded border border-emerald-200 text-emerald-800 font-bold block h-full w-full">HELTEC ESP32-S3</span></BorderGlow>
                   <span className="text-[#059669] font-bold">→</span>
-                  <span className="px-2.5 py-1 bg-pink-50 rounded border border-pink-200 text-pink-800 font-bold">FPGA</span>
+                  <BorderGlow glowColor="219, 39, 119" borderRadius={4} className="inline-block"><span className="px-2.5 py-1 bg-pink-50 rounded border border-pink-200 text-pink-800 font-bold block h-full w-full">FPGA</span></BorderGlow>
                   <span className="text-[#059669] font-bold">→</span>
-                  <span className="px-2.5 py-1 bg-emerald-100 text-[#059669] rounded border border-emerald-300 font-extrabold">ADAPTIVE DECISION</span>
+                  <BorderGlow glowColor="5, 150, 105" borderRadius={4} className="inline-block"><span className="px-2.5 py-1 bg-emerald-100 text-[#059669] rounded border border-emerald-300 font-extrabold block h-full w-full">ADAPTIVE DECISION</span></BorderGlow>
                 </div>
               </div>
             </div>
@@ -117,7 +119,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <span className="text-[10px] text-[#059669] font-black tracking-widest uppercase">Physical Architecture</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 mb-4">Inside the PHENORA System</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 mb-4">Inside the <ShinyText text="PHENORA" speed={2.5} color="#0f172a" shineColor="#059669" spread={80} /> System</h2>
             <p className="text-slate-600 text-sm">
               Click and rotate the active hardware assembly below to inspect the dual sensor wells, acquisition chips, and real-time edge processing circuits.
             </p>
@@ -132,7 +134,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <span className="text-[10px] text-[#059669] font-black tracking-widest uppercase">Hardware Prototypes</span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 mb-4">PHENORA Enclosure & System Designs</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 mb-4"><ShinyText text="PHENORA" speed={2.5} color="#0f172a" shineColor="#059669" spread={80} /> Enclosure & System Designs</h2>
             <p className="text-slate-600 text-sm">
               From the V1 benchtop prototype to the V2 integrated multi-frequency analyzer architecture.
             </p>
@@ -237,26 +239,36 @@ export default function Home() {
             <div className="bg-slate-50 p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center">
               <h3 className="text-slate-900 text-base font-bold mb-6 text-center uppercase tracking-widest text-slate-700">FPGA Edge State Flow</h3>
               <div className="space-y-3 font-mono text-xs">
-                <div className="bg-white p-3 rounded border border-slate-200 flex items-center justify-between text-slate-800 shadow-xs">
-                  <span>1. AC Signal Input</span>
-                  <span className="text-[#059669] font-bold">100 Hz - 100 kHz</span>
-                </div>
-                <div className="bg-white p-3 rounded border border-slate-200 flex items-center justify-between text-slate-800 shadow-xs">
-                  <span>2. Dual ADC DFT</span>
-                  <span className="text-amber-600 font-bold">R + jX registers</span>
-                </div>
-                <div className="bg-white p-3 rounded border border-slate-200 flex items-center justify-between text-slate-800 shadow-xs">
-                  <span>3. Differential Filter</span>
-                  <span className="text-blue-600 font-bold">F_test - F_control</span>
-                </div>
-                <div className="bg-white p-3 rounded border border-slate-200 flex items-center justify-between text-slate-800 shadow-xs">
-                  <span>4. Adaptive Check</span>
-                  <span className="text-purple-600 font-bold">Evaluate d(ΔF)/dt</span>
-                </div>
-                <div className="bg-emerald-100/70 p-3 rounded border border-emerald-300 flex items-center justify-between">
-                  <span className="text-[#059669] font-extrabold">5. Decision Halt</span>
-                  <span className="bg-[#059669] text-white font-bold px-2 py-0.5 rounded text-[10px]">STOP / REPORT</span>
-                </div>
+                <BorderGlow glowColor="5, 150, 105" borderRadius={4}>
+                  <div className="bg-white p-3 rounded border border-slate-200 flex items-center justify-between text-slate-800 shadow-xs h-full w-full">
+                    <span>1. AC Signal Input</span>
+                    <span className="text-[#059669] font-bold">100 Hz - 100 kHz</span>
+                  </div>
+                </BorderGlow>
+                <BorderGlow glowColor="217, 119, 6" borderRadius={4}>
+                  <div className="bg-white p-3 rounded border border-slate-200 flex items-center justify-between text-slate-800 shadow-xs h-full w-full">
+                    <span>2. Dual ADC DFT</span>
+                    <span className="text-amber-600 font-bold">R + jX registers</span>
+                  </div>
+                </BorderGlow>
+                <BorderGlow glowColor="37, 99, 235" borderRadius={4}>
+                  <div className="bg-white p-3 rounded border border-slate-200 flex items-center justify-between text-slate-800 shadow-xs h-full w-full">
+                    <span>3. Differential Filter</span>
+                    <span className="text-blue-600 font-bold">F_test - F_control</span>
+                  </div>
+                </BorderGlow>
+                <BorderGlow glowColor="147, 51, 234" borderRadius={4}>
+                  <div className="bg-white p-3 rounded border border-slate-200 flex items-center justify-between text-slate-800 shadow-xs h-full w-full">
+                    <span>4. Adaptive Check</span>
+                    <span className="text-purple-600 font-bold">Evaluate d(ΔF)/dt</span>
+                  </div>
+                </BorderGlow>
+                <BorderGlow glowColor="5, 150, 105" borderRadius={4}>
+                  <div className="bg-emerald-100/70 p-3 rounded border border-emerald-300 flex items-center justify-between h-full w-full">
+                    <span className="text-[#059669] font-extrabold">5. Decision Halt</span>
+                    <span className="bg-[#059669] text-white font-bold px-2 py-0.5 rounded text-[10px]">STOP / REPORT</span>
+                  </div>
+                </BorderGlow>
               </div>
             </div>
           </div>
@@ -268,83 +280,89 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-[10px] text-[#059669] font-black tracking-widest uppercase">Diagnostic Milestones</span>
-            <h2 className="text-3xl font-black text-slate-900 mt-2">Evolution of the PHENORA Platform</h2>
+            <h2 className="text-3xl font-black text-slate-900 mt-2">Evolution of the <ShinyText text="PHENORA" speed={2.5} color="#0f172a" shineColor="#059669" spread={80} /> Platform</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-md relative flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-slate-900 text-xl font-black">V1 — CURRENT</h3>
-                  <span className="px-2 py-0.5 rounded bg-emerald-50 text-[#059669] text-[9px] font-extrabold tracking-widest uppercase border border-emerald-200">
-                    PROTOTYPE
-                  </span>
+            <BorderGlow glowColor="5, 150, 105" borderRadius={12}>
+              <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-md relative flex flex-col justify-between h-full w-full">
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-slate-900 text-xl font-black">V1 — CURRENT</h3>
+                    <span className="px-2 py-0.5 rounded bg-emerald-50 text-[#059669] text-[9px] font-extrabold tracking-widest uppercase border border-emerald-200">
+                      PROTOTYPE
+                    </span>
+                  </div>
+                  <p className="text-[#059669] text-xs font-mono font-bold mb-4 uppercase tracking-wider">BULK DIFFERENTIAL IMPEDANCE</p>
+                  
+                  <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide mb-2">Components</span>
+                  <ul className="space-y-1.5 text-xs text-slate-600 mb-6 list-disc list-inside">
+                    <li>Control / Test wells</li>
+                    <li>Electrodes</li>
+                    <li>AD5933 Chip</li>
+                    <li>Heltec ESP32-S3 MCU</li>
+                    <li>VSD FPGA State Loop</li>
+                    <li>Adaptive decision logic</li>
+                  </ul>
                 </div>
-                <p className="text-[#059669] text-xs font-mono font-bold mb-4 uppercase tracking-wider">BULK DIFFERENTIAL IMPEDANCE</p>
-                
-                <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide mb-2">Components</span>
-                <ul className="space-y-1.5 text-xs text-slate-600 mb-6 list-disc list-inside">
-                  <li>Control / Test wells</li>
-                  <li>Electrodes</li>
-                  <li>AD5933 Chip</li>
-                  <li>Heltec ESP32-S3 MCU</li>
-                  <li>VSD FPGA State Loop</li>
-                  <li>Adaptive decision logic</li>
-                </ul>
+                <div className="text-[10px] text-slate-500 font-bold font-mono border-t border-slate-200 pt-3">
+                  STATUS: COMPUTATIONALLY VERIFIED
+                </div>
               </div>
-              <div className="text-[10px] text-slate-500 font-bold font-mono border-t border-slate-200 pt-3">
-                STATUS: COMPUTATIONALLY VERIFIED
-              </div>
-            </div>
+            </BorderGlow>
 
-            <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-md relative flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-slate-900 text-xl font-black">V2 — UPCOMING</h3>
-                  <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[9px] font-extrabold tracking-widest uppercase border border-amber-200">
-                    CONCEPT
-                  </span>
+            <BorderGlow glowColor="217, 119, 6" borderRadius={12}>
+              <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-md relative flex flex-col justify-between h-full w-full">
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-slate-900 text-xl font-black">V2 — UPCOMING</h3>
+                    <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[9px] font-extrabold tracking-widest uppercase border border-amber-200">
+                      CONCEPT
+                    </span>
+                  </div>
+                  <p className="text-amber-700 text-xs font-mono font-bold mb-4 uppercase tracking-wider">ADAPTIVE MULTI-FREQUENCY</p>
+                  
+                  <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide mb-2">Potential Features</span>
+                  <ul className="space-y-1.5 text-xs text-slate-600 mb-6 list-disc list-inside">
+                    <li>Multi-frequency fingerprints</li>
+                    <li>Temperature compensation</li>
+                    <li>Electrode condition checks</li>
+                    <li>Reference channel isolation</li>
+                    <li>Adaptive frequency sweep</li>
+                    <li>Improved measurement QC</li>
+                  </ul>
                 </div>
-                <p className="text-amber-700 text-xs font-mono font-bold mb-4 uppercase tracking-wider">ADAPTIVE MULTI-FREQUENCY</p>
-                
-                <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide mb-2">Potential Features</span>
-                <ul className="space-y-1.5 text-xs text-slate-600 mb-6 list-disc list-inside">
-                  <li>Multi-frequency fingerprints</li>
-                  <li>Temperature compensation</li>
-                  <li>Electrode condition checks</li>
-                  <li>Reference channel isolation</li>
-                  <li>Adaptive frequency sweep</li>
-                  <li>Improved measurement QC</li>
-                </ul>
+                <div className="text-[10px] text-slate-500 font-bold font-mono border-t border-slate-200 pt-3">
+                  STATUS: UPCOMING (NOT IMPLEMENTED)
+                </div>
               </div>
-              <div className="text-[10px] text-slate-500 font-bold font-mono border-t border-slate-200 pt-3">
-                STATUS: UPCOMING (NOT IMPLEMENTED)
-              </div>
-            </div>
+            </BorderGlow>
 
-            <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-md relative flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-slate-900 text-xl font-black">V3 — FUTURE</h3>
-                  <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[9px] font-extrabold tracking-widest uppercase border border-blue-200">
-                    VISION
-                  </span>
+            <BorderGlow glowColor="37, 99, 235" borderRadius={12}>
+              <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-md relative flex flex-col justify-between h-full w-full">
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-slate-900 text-xl font-black">V3 — FUTURE</h3>
+                    <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[9px] font-extrabold tracking-widest uppercase border border-blue-200">
+                      VISION
+                    </span>
+                  </div>
+                  <p className="text-blue-700 text-xs font-mono font-bold mb-4 uppercase tracking-wider">PRODUCT / ASSAY PLATFORM</p>
+                  
+                  <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide mb-2">Target Direction</span>
+                  <ul className="space-y-1.5 text-xs text-slate-600 mb-6 list-disc list-inside">
+                    <li>Disposable automated cartridge</li>
+                    <li>On-board sample fluidics</li>
+                    <li>Biological AST validation</li>
+                    <li>Multi-antibiotic concurrent matrix</li>
+                    <li>Rigorous clinical trial validation</li>
+                  </ul>
                 </div>
-                <p className="text-blue-700 text-xs font-mono font-bold mb-4 uppercase tracking-wider">PRODUCT / ASSAY PLATFORM</p>
-                
-                <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wide mb-2">Target Direction</span>
-                <ul className="space-y-1.5 text-xs text-slate-600 mb-6 list-disc list-inside">
-                  <li>Disposable automated cartridge</li>
-                  <li>On-board sample fluidics</li>
-                  <li>Biological AST validation</li>
-                  <li>Multi-antibiotic concurrent matrix</li>
-                  <li>Rigorous clinical trial validation</li>
-                </ul>
+                <div className="text-[10px] text-slate-500 font-bold font-mono border-t border-slate-200 pt-3">
+                  STATUS: FUTURE
+                </div>
               </div>
-              <div className="text-[10px] text-slate-500 font-bold font-mono border-t border-slate-200 pt-3">
-                STATUS: FUTURE
-              </div>
-            </div>
+            </BorderGlow>
           </div>
         </div>
       </section>
@@ -354,93 +372,99 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-[10px] text-[#059669] font-black tracking-widest uppercase">Start-Up Evaluation</span>
-            <h2 className="text-3xl font-black text-slate-900 mt-2">What PHENORA Has Proven</h2>
+            <h2 className="text-3xl font-black text-slate-900 mt-2">What <ShinyText text="PHENORA" speed={2.5} color="#0f172a" shineColor="#059669" spread={80} /> Has Proven</h2>
             <p className="text-slate-600 text-sm mt-2">
               A transparent breakdown of computational proofs, active engineering integrations, and remaining medical hurdles.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-slate-50 p-6 rounded-xl border border-emerald-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-bold text-[#059669] mb-4 block uppercase tracking-widest font-mono">✓ WHAT WE HAVE PROVEN</span>
-                <ul className="space-y-3 text-xs text-slate-700">
-                  <li className="flex items-start space-x-2">
-                    <span className="text-[#059669] font-bold">✓</span>
-                    <span>Analytical electrical conduction model</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-[#059669] font-bold">✓</span>
-                    <span>FEM numerical agreement (Elmer StatCurrent solver)</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-[#059669] font-bold">✓</span>
-                    <span>Rigorous mesh convergence (0.0000% error relative to math)</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-[#059669] font-bold">✓</span>
-                    <span>Conductivity perturbation response characterization</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-[#059669] font-bold">✓</span>
-                    <span>Differential sensing model & common-mode rejection physics</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-[#059669] font-bold">✓</span>
-                    <span>Adaptive reference halting FSM algorithm in code tests</span>
-                  </li>
-                </ul>
+            <BorderGlow glowColor="5, 150, 105" borderRadius={12}>
+              <div className="bg-slate-50 p-6 rounded-xl border border-emerald-200 shadow-sm flex flex-col justify-between h-full w-full">
+                <div>
+                  <span className="text-xs font-bold text-[#059669] mb-4 block uppercase tracking-widest font-mono">✓ WHAT WE HAVE PROVEN</span>
+                  <ul className="space-y-3 text-xs text-slate-700">
+                    <li className="flex items-start space-x-2">
+                      <span className="text-[#059669] font-bold">✓</span>
+                      <span>Analytical electrical conduction model</span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="text-[#059669] font-bold">✓</span>
+                      <span>FEM numerical agreement (Elmer StatCurrent solver)</span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="text-[#059669] font-bold">✓</span>
+                      <span>Rigorous mesh convergence (0.0000% error relative to math)</span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="text-[#059669] font-bold">✓</span>
+                      <span>Conductivity perturbation response characterization</span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="text-[#059669] font-bold">✓</span>
+                      <span>Differential sensing model & common-mode rejection physics</span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="text-[#059669] font-bold">✓</span>
+                      <span>Adaptive reference halting FSM algorithm in code tests</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-6 pt-4 border-t border-slate-200 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                  COMPUTATIONALLY SOLID & VERIFIED
+                </div>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-200 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                COMPUTATIONALLY SOLID & VERIFIED
-              </div>
-            </div>
+            </BorderGlow>
 
-            <div className="bg-slate-50 p-6 rounded-xl border border-amber-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-bold text-amber-600 mb-4 block uppercase tracking-widest font-mono">◐ WHAT WE ARE BUILDING</span>
-                <ul className="space-y-3 text-xs text-slate-700">
-                  <li className="flex items-start space-x-2">
-                    <span className="text-amber-600 font-bold">◐</span>
-                    <span>AD5933 hardware impedance signal acquisition loop</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-amber-600 font-bold">◐</span>
-                    <span>Heltec microcontroller I2C firmware driver loops</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-amber-600 font-bold">◐</span>
-                    <span>FPGA edge hardware moving-average filters & FSM engine</span>
-                  </li>
-                </ul>
+            <BorderGlow glowColor="217, 119, 6" borderRadius={12}>
+              <div className="bg-slate-50 p-6 rounded-xl border border-amber-200 shadow-sm flex flex-col justify-between h-full w-full">
+                <div>
+                  <span className="text-xs font-bold text-amber-600 mb-4 block uppercase tracking-widest font-mono">◐ WHAT WE ARE BUILDING</span>
+                  <ul className="space-y-3 text-xs text-slate-700">
+                    <li className="flex items-start space-x-2">
+                      <span className="text-amber-600 font-bold">◐</span>
+                      <span>AD5933 hardware impedance signal acquisition loop</span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="text-amber-600 font-bold">◐</span>
+                      <span>Heltec microcontroller I2C firmware driver loops</span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="text-amber-600 font-bold">◐</span>
+                      <span>FPGA edge hardware moving-average filters & FSM engine</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-6 pt-4 border-t border-slate-200 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                  ACTIVE ELECTRONIC DEVELOPMENT
+                </div>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-200 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                ACTIVE ELECTRONIC DEVELOPMENT
-              </div>
-            </div>
+            </BorderGlow>
 
-            <div className="bg-slate-50 p-6 rounded-xl border border-blue-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-bold text-blue-600 mb-4 block uppercase tracking-widest font-mono">○ WHAT REMAINS</span>
-                <ul className="space-y-3 text-xs text-slate-700">
-                  <li className="flex items-start space-x-2">
-                    <span className="text-blue-600 font-bold">○</span>
-                    <span>Biological suspension calibration in controlled media</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-blue-600 font-bold">○</span>
-                    <span>AST verification (Minimum Inhibitory Concentration validation)</span>
-                  </li>
-                  <li className="flex items-start space-x-2">
-                    <span className="text-blue-600 font-bold">○</span>
-                    <span>Clinical trial validation using diagnostic patient specimens</span>
-                  </li>
-                </ul>
+            <BorderGlow glowColor="37, 99, 235" borderRadius={12}>
+              <div className="bg-slate-50 p-6 rounded-xl border border-blue-200 shadow-sm flex flex-col justify-between h-full w-full">
+                <div>
+                  <span className="text-xs font-bold text-blue-600 mb-4 block uppercase tracking-widest font-mono">○ WHAT REMAINS</span>
+                  <ul className="space-y-3 text-xs text-slate-700">
+                    <li className="flex items-start space-x-2">
+                      <span className="text-blue-600 font-bold">○</span>
+                      <span>Biological suspension calibration in controlled media</span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="text-blue-600 font-bold">○</span>
+                      <span>AST verification (Minimum Inhibitory Concentration validation)</span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="text-blue-600 font-bold">○</span>
+                      <span>Clinical trial validation using diagnostic patient specimens</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-6 pt-4 border-t border-slate-200 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                  FUTURE CLINICAL MILESTONES
+                </div>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-200 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                FUTURE CLINICAL MILESTONES
-              </div>
-            </div>
+            </BorderGlow>
           </div>
         </div>
       </section>
@@ -448,8 +472,8 @@ export default function Home() {
       {/* Final CTA */}
       <section className="py-20 text-center bg-emerald-50/60 border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-4 uppercase">
-            PHENORA
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight mb-4 uppercase">
+            <ShinyText text="PHENORA" speed={2.5} color="#0f172a" shineColor="#059669" spread={110} />
           </h2>
           <p className="text-lg sm:text-xl text-[#059669] font-mono italic mb-8 font-semibold">
             "Measure only as much as the evidence requires."

@@ -2,21 +2,52 @@
 
 import { useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 
 interface BoardProps {
   highlighted: boolean;
   phaseActive: boolean;
+  currentStep?: number;
 }
 
-export default function HeltecBoard({ highlighted, phaseActive }: BoardProps) {
+export default function HeltecBoard({ highlighted, phaseActive, currentStep = 0 }: BoardProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const glowRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
 
   // Status-based coloring
   const ledColor = phaseActive ? "#00ffcc" : highlighted ? "#17B169" : "#ff3300";
   const pcbColor = phaseActive ? "#e6fff2" : highlighted ? "#d4edda" : "#ffffff";
 
+  useFrame((_, dt) => {
+    glowRefs.current.forEach((mat, i) => {
+      if (mat) {
+        const targetOp = highlighted ? [0.75, 0.4, 0.15][i] : 0;
+        mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, dt * 2.5);
+      }
+    });
+  });
+
   return (
     <group ref={groupRef}>
+      {/* Soft Blurry Glow Effect (3 Layers) */}
+      {[
+        { s: [1.05, 2.0, 1.05], id: 0 },
+        { s: [1.15, 3.5, 1.15], id: 1 },
+        { s: [1.28, 5.5, 1.28], id: 2 }
+      ].map((layer, i) => (
+        <mesh key={`glow-${layer.id}`} position={[0, 0, 0]}>
+          <boxGeometry args={[1.4 * layer.s[0], 0.04 * layer.s[1], 0.7 * layer.s[2]]} />
+          <meshBasicMaterial 
+            ref={el => { glowRefs.current[i] = el; }}
+            color="#6ee7b7" 
+            transparent
+            opacity={0}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+
       {/* 1. Main PCB Substrate */}
       <mesh castShadow receiveShadow position={[0, 0, 0]}>
         <boxGeometry args={[1.4, 0.04, 0.7]} />
@@ -51,6 +82,18 @@ export default function HeltecBoard({ highlighted, phaseActive }: BoardProps) {
         <boxGeometry args={[0.3, 0.05, 0.3]} />
         <meshStandardMaterial color="#cccccc" metalness={0.8} roughness={0.2} />
       </mesh>
+
+      {/* 9. Active Tx/Rx Status LEDs */}
+      <group position={[0.2, 0.04, 0.35]}>
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[0.02, 0.01, 0.02]} />
+          <meshStandardMaterial 
+            color={currentStep === 3 ? "#3b82f6" : "#1e3a8a"} 
+            emissive={currentStep === 3 ? "#60a5fa" : "#000"} 
+            emissiveIntensity={currentStep === 3 ? 2 : 0} 
+          />
+        </mesh>
+      </group>
 
       {/* 4. USB-C Port */}
       <mesh castShadow position={[-0.65, 0.03, 0]}>

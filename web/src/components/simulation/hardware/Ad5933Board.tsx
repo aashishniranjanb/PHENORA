@@ -2,20 +2,51 @@
 
 import { useRef } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 
 interface BoardProps {
   highlighted: boolean;
   phaseActive: boolean;
+  currentStep?: number;
 }
 
-export default function Ad5933Board({ highlighted, phaseActive }: BoardProps) {
+export default function Ad5933Board({ highlighted, phaseActive, currentStep = 0 }: BoardProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const glowRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
 
   const pcbColor = phaseActive ? "#00853c" : highlighted ? "#146338" : "#135a2d";
   const activeColor = phaseActive ? "#ab00ff" : highlighted ? "#7b2d8b" : "#222222";
 
+  useFrame((_, dt) => {
+    glowRefs.current.forEach((mat, i) => {
+      if (mat) {
+        const targetOp = highlighted ? [0.75, 0.4, 0.15][i] : 0;
+        mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, dt * 2.5);
+      }
+    });
+  });
+
   return (
     <group ref={groupRef}>
+      {/* Soft Blurry Glow Effect (3 Layers) */}
+      {[
+        { s: [1.05, 2.0, 1.05], id: 0 },
+        { s: [1.15, 3.5, 1.15], id: 1 },
+        { s: [1.28, 5.5, 1.28], id: 2 }
+      ].map((layer, i) => (
+        <mesh key={`glow-${layer.id}`} position={[0, 0, 0]}>
+          <boxGeometry args={[1.0 * layer.s[0], 0.04 * layer.s[1], 1.0 * layer.s[2]]} />
+          <meshBasicMaterial 
+            ref={el => { glowRefs.current[i] = el; }}
+            color="#6ee7b7" 
+            transparent
+            opacity={0}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+
       {/* 1. Main PCB Substrate (Analog Devices Green) */}
       <mesh castShadow receiveShadow position={[0, 0, 0]}>
         <boxGeometry args={[1.0, 0.04, 1.0]} />
