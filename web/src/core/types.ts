@@ -8,14 +8,8 @@ export interface MLResult {
   trajectoryConfidence: number;
 }
 
-export type Trajectory =
-  | "STABLE"
-  | "RISING"
-  | "FALLING"
-  | "TRANSITION"
-  | "NOISY"
-  | "DRIFTING"
-  | "UNRESOLVED";
+import { TrajectoryClass } from "./signalTypes";
+export type Trajectory = TrajectoryClass;
 
 export interface EvidenceResult {
   evidenceScore: number;
