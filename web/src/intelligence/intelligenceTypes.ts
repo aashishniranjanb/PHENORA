@@ -7,7 +7,8 @@ export type TrajectoryClass =
   | "TRANSITION"
   | "NOISY"
   | "DRIFTING"
-  | "UNRESOLVED";
+  | "UNRESOLVED"
+  | "UNKNOWN";
 
 /** Alias for backward compatibility */
 export type SignalTrajectory = TrajectoryClass;
@@ -140,4 +141,21 @@ export interface IntelligenceConfig {
   trajectory: TrajectoryConfig;
   anomaly: AnomalyConfig;
   confidence: ConfidenceConfig;
+}
+
+export interface IntelligenceDebug {
+  qualityComponents: {
+    snrScore: number;
+    varianceScore: number;
+    stabilityScore: number;
+    driftScore: number;
+  };
+  trajectoryEvidence: {
+    positiveSlopeEvidence: number;
+    negativeSlopeEvidence: number;
+    stableEvidence: number;
+    transitionEvidence: number;
+  };
+  anomalyComponents: Record<string, number>;
+  temporalFeatures: TemporalFeatures;
 }

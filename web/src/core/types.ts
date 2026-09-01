@@ -1,15 +1,32 @@
-export * from "./signalTypes";
+export interface SignalFeatures {
+  timestamp: number;
+  rawValue: number;
 
-export type SignalTrajectory =
+  rms: number;
+  variance: number;
+  peakToPeak: number;
+
+  baseline: number;
+  delta: number;
+  slope: number;
+  stability: number;
+
+  snr: number;
+  drift: number;
+}
+
+export type TrajectoryClass =
   | "STABLE"
   | "RISING"
   | "FALLING"
+  | "TRANSITION"
   | "NOISY"
   | "DRIFTING"
-  | "TRANSITION"
+  | "UNRESOLVED"
   | "UNKNOWN";
 
-export type Trajectory = SignalTrajectory | "UNRESOLVED";
+export type SignalTrajectory = TrajectoryClass;
+export type Trajectory = TrajectoryClass;
 
 export interface ModelMetadata {
   modelName: string;
@@ -21,6 +38,7 @@ export interface ModelMetadata {
     | "BIOLOGICAL"
     | "UNKNOWN";
   featureVersion: string;
+  status: "EXPERIMENTAL" | "RULE_BASED" | "PROTOTYPE";
 }
 
 export interface MLResult {
