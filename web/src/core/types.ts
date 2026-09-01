@@ -1,21 +1,20 @@
-export interface SignalFeatures {
-  timestamp: number;
-  rawValue: number;
+// Core type barrel — re-exports from sub-modules
+// SignalFeatures, TrajectoryClass, SignalTrajectory defined in signalTypes.ts
+export * from "./signalTypes";
 
-  rms: number;
-  variance: number;
-  peakToPeak: number;
+// Intelligence contracts (SignalIntelligence, DecisionEvidence, ModelMetadata, etc.)
+// Defined in core/intelligence/intelligenceTypes.ts
+export * from "./intelligence/intelligenceTypes";
 
-  baseline: number;
-  delta: number;
-  slope: number;
-  stability: number;
+export interface MLResult {
+  qualityScore: number;
+  anomalyScore: number;
 
-  snr: number;
-  drift: number;
+  trajectory: Trajectory;
+  trajectoryConfidence: number;
 }
 
-export type TrajectoryClass =
+export type Trajectory =
   | "STABLE"
   | "RISING"
   | "FALLING"
@@ -24,48 +23,6 @@ export type TrajectoryClass =
   | "DRIFTING"
   | "UNRESOLVED"
   | "UNKNOWN";
-
-export type SignalTrajectory = TrajectoryClass;
-export type Trajectory = TrajectoryClass;
-
-export interface ModelMetadata {
-  modelName: string;
-  modelVersion: string;
-  trained: boolean;
-  trainingSource:
-    | "SYNTHETIC"
-    | "ELECTRICAL_VALIDATION"
-    | "BIOLOGICAL"
-    | "UNKNOWN";
-  featureVersion: string;
-  status: "EXPERIMENTAL" | "RULE_BASED" | "PROTOTYPE";
-}
-
-export interface MLResult {
-  timestamp: number;
-
-  signalQuality: number;
-  anomalyScore: number;
-
-  trajectory: SignalTrajectory;
-  trajectoryConfidence: number;
-
-  confidence: number;
-
-  usable: boolean;
-
-  reasons: string[];
-
-  model: ModelMetadata;
-
-  /** Alias for backward compatibility */
-  qualityScore?: number;
-}
-
-export interface DecisionInput {
-  signal: SignalFeatures;
-  intelligence: MLResult;
-}
 
 export interface EvidenceResult {
   evidenceScore: number;
