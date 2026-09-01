@@ -11,6 +11,7 @@ export default function Navbar() {
 
   const links = [
     { href: "/", label: "HOME" },
+    { href: "/phenora-flash", label: "PHENORA FLASH" },
     { href: "/technology", label: "TECHNOLOGY" },
     { href: "/spectrae", label: "SIMULATION LAB" },
     { href: "/research", label: "RESEARCH" },
