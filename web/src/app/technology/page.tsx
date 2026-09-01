@@ -40,10 +40,10 @@ export default function Technology() {
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg hover:shadow-xl transition-all group h-full w-full flex flex-col">
                 <div className="relative h-64 w-full bg-slate-50 overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
                   <img
-                    src="/images/PHENORA V1 ARCH.png"
-                    alt="PHENORA V1 Architecture Diagram"
-                    className="max-h-full max-w-full object-contain rounded-lg group-hover:scale-105 transition-transform duration-500 cursor-pointer"
-                    onClick={() => { setPreviewImage("/images/PHENORA V1 ARCH.png"); setIsPreviewOpen(true); }}
+                    src="/img/PHENORA V1 ARCH.png"
+                    alt="PHENORA V1 Hardware Architecture Diagram"
+                    className="w-full rounded shadow-sm hover:scale-[1.02] transition-transform cursor-pointer"
+                    onClick={() => { setPreviewImage("/img/PHENORA V1 ARCH.png"); setIsPreviewOpen(true); }}
                   />
                   <span className="absolute top-4 left-4 px-3 py-1 bg-[#059669] text-white text-[10px] font-black tracking-widest uppercase rounded shadow-sm">
                     V1 Architecture
@@ -69,10 +69,10 @@ export default function Technology() {
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg hover:shadow-xl transition-all group h-full w-full flex flex-col">
                 <div className="relative h-64 w-full bg-slate-50 overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
                   <img
-                    src="/images/PHENORA V2 ARCH.png"
-                    alt="PHENORA V2 Architecture Diagram"
-                    className="max-h-full max-w-full object-contain rounded-lg group-hover:scale-105 transition-transform duration-500 cursor-pointer"
-                    onClick={() => { setPreviewImage("/images/PHENORA V2 ARCH.png"); setIsPreviewOpen(true); }}
+                    src="/img/PHENORA V2 ARCH.png"
+                    alt="PHENORA V2 Hardware Architecture Diagram"
+                    className="w-full rounded shadow-sm hover:scale-[1.02] transition-transform cursor-pointer"
+                    onClick={() => { setPreviewImage("/img/PHENORA V2 ARCH.png"); setIsPreviewOpen(true); }}
                   />
                   <span className="absolute top-4 left-4 px-3 py-1 bg-blue-600 text-white text-[10px] font-black tracking-widest uppercase rounded shadow-sm">
                     V2 Architecture
@@ -98,10 +98,10 @@ export default function Technology() {
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg hover:shadow-xl transition-all group h-full w-full flex flex-col">
                 <div className="relative h-64 w-full bg-slate-50 overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
                   <img
-                    src="/images/PHENORA V3 ARCH.png"
-                    alt="PHENORA V3 Architecture Diagram"
-                    className="max-h-full max-w-full object-contain rounded-lg group-hover:scale-105 transition-transform duration-500 cursor-pointer"
-                    onClick={() => { setPreviewImage("/images/PHENORA V3 ARCH.png"); setIsPreviewOpen(true); }}
+                    src="/img/PHENORA V3 ARCH.png"
+                    alt="PHENORA V3 Hardware Architecture Diagram"
+                    className="w-full rounded shadow-sm hover:scale-[1.02] transition-transform cursor-pointer"
+                    onClick={() => { setPreviewImage("/img/PHENORA V3 ARCH.png"); setIsPreviewOpen(true); }}
                   />
                   <span className="absolute top-4 left-4 px-3 py-1 bg-purple-600 text-white text-[10px] font-black tracking-widest uppercase rounded shadow-sm">
                     V3 Architecture
