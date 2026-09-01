@@ -71,7 +71,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-3xl transform scale-90"></div>
                 {/* Floating Product Image */}
                 <img
-                  src="/images/HERO_product.png"
+                  src="/img/HERO_product.png"
                   alt="PHENORA Hero Product Enclosure"
                   className="w-full h-auto object-contain drop-shadow-2xl animate-float relative z-10 rounded-2xl"
                 />
@@ -145,7 +145,7 @@ export default function Home() {
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg hover:shadow-xl transition-all">
               <div className="relative h-72 w-full bg-slate-50 overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
                 <img
-                  src="/images/PHENORA V1.png"
+                  src="/img/PHENORA V1.png"
                   alt="PHENORA V1 Benchtop Prototype"
                   className="max-h-full max-w-full object-contain rounded-lg hover:scale-105 transition-transform duration-500"
                 />
@@ -174,7 +174,7 @@ export default function Home() {
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg hover:shadow-xl transition-all">
               <div className="relative h-72 w-full bg-slate-50 overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
                 <img
-                  src="/images/PHENORA V2.png"
+                  src="/img/PHENORA V2.png"
                   alt="PHENORA V2 Multi-Frequency Analyzer"
                   className="max-h-full max-w-full object-contain rounded-lg hover:scale-105 transition-transform duration-500"
                 />

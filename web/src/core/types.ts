@@ -1,19 +1,4 @@
-export interface SignalFeatures {
-  timestamp: number;
-  rawValue: number;
-
-  rms: number;
-  variance: number;
-  peakToPeak: number;
-
-  baseline: number;
-  delta: number;
-  slope: number;
-  stability: number;
-
-  snr: number;
-  drift: number;
-}
+export * from "./signalTypes";
 
 export type SignalTrajectory =
   | "STABLE"
