@@ -1,13 +1,22 @@
 import { SignalFeatures } from "../core/types";
 
-export type SignalTrajectory =
+export type TrajectoryClass =
   | "STABLE"
   | "RISING"
   | "FALLING"
+  | "TRANSITION"
   | "NOISY"
   | "DRIFTING"
-  | "TRANSITION"
-  | "UNKNOWN";
+  | "UNRESOLVED";
+
+/** Alias for backward compatibility */
+export type SignalTrajectory = TrajectoryClass;
+
+export type DecisionReadiness =
+  | "INSUFFICIENT"
+  | "BUILDING"
+  | "HIGH"
+  | "READY";
 
 export interface ModelMetadata {
   modelName: string;
@@ -19,32 +28,68 @@ export interface ModelMetadata {
     | "BIOLOGICAL"
     | "UNKNOWN";
   featureVersion: string;
+  status: "EXPERIMENTAL" | "RULE_BASED" | "PROTOTYPE";
 }
 
-export interface MLResult {
+/** Compact byte-friendly payload for FPGA / Person C UART integration */
+export interface DecisionEvidence {
+  quality: number;       // 0–255
+  confidence: number;    // 0–255
+  anomaly: number;       // 0–255
+  trajectory: number;    // uint8 enum index
+  flags: number;         // uint8 bitfield
+}
+
+export interface IntelligenceExplanation {
+  qualityFactors: string[];
+  trajectoryFactors: string[];
+  confidenceBreakdown: {
+    qualityContribution: number;
+    trajectoryContribution: number;
+    stabilityContribution: number;
+    anomalyPenalty: number;
+    driftPenalty: number;
+    historyBonus: number;
+  };
+  summary: string;
+}
+
+export interface SignalIntelligence {
   timestamp: number;
 
-  signalQuality: number;
-  anomalyScore: number;
+  qualityScore: number;          // 0–100
 
-  trajectory: SignalTrajectory;
-  trajectoryConfidence: number;
+  trajectory: TrajectoryClass;
+  trajectoryConfidence: number;  // 0–100
 
-  confidence: number;
+  anomalyScore: number;          // 0–100
+  anomalyDetected: boolean;
 
-  usable: boolean;
+  confidenceScore: number;       // 0–100
+
+  evidenceScore: number;         // 0–100
+
+  decisionReadiness: DecisionReadiness;
+
+  explanation: IntelligenceExplanation;
+
+  evidencePayload: DecisionEvidence;
 
   reasons: string[];
 
-  model: ModelMetadata;
+  usable: boolean;
 
-  /** Backward-compatibility alias */
-  qualityScore?: number;
+  model: ModelMetadata;
+}
+
+/** Backward-compatible alias */
+export interface MLResult extends SignalIntelligence {
+  signalQuality: number; // 0..1
 }
 
 export interface DecisionInput {
   signal: SignalFeatures;
-  intelligence: MLResult;
+  intelligence: SignalIntelligence;
 }
 
 export interface FeatureHistory {
@@ -95,21 +140,4 @@ export interface IntelligenceConfig {
   trajectory: TrajectoryConfig;
   anomaly: AnomalyConfig;
   confidence: ConfidenceConfig;
-}
-
-export interface IntelligenceDebug {
-  qualityComponents: {
-    snrScore: number;
-    varianceScore: number;
-    stabilityScore: number;
-    driftScore: number;
-  };
-  trajectoryEvidence: {
-    positiveSlopeEvidence: number;
-    negativeSlopeEvidence: number;
-    stableEvidence: number;
-    transitionEvidence: number;
-  };
-  anomalyComponents: Record<string, number>;
-  temporalFeatures: TemporalFeatures;
 }
