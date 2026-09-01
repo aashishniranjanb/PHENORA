@@ -1,4 +1,5 @@
 export * from "./signalTypes";
+export * from "./intelligence/intelligenceTypes";
 
 export interface MLResult {
   qualityScore: number;
@@ -40,3 +41,4 @@ export interface DecisionResult {
   reason: string;
   evidenceScore: number;
 }
+
