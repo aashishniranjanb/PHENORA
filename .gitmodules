@@ -1,0 +1,3 @@
+[submodule "amrie"]
+	path = amrie
+	url = https://github.com/WHONET-Development/AMRIE.git
