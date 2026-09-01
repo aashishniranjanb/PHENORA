@@ -19,11 +19,19 @@ export type ContactStatus =
   | "CONTACT_BAD";
 
 export type TrajectoryClass =
+  | "STABLE"
   | "RISING"
   | "FALLING"
   | "FLAT"
+  | "TRANSITION"
+  | "NOISY"
+  | "DRIFTING"
   | "UNSTABLE"
+  | "UNRESOLVED"
   | "UNKNOWN";
+
+export type SignalTrajectory = TrajectoryClass;
+export type Trajectory = TrajectoryClass;
 
 export type DriftLevel = "LOW" | "MEDIUM" | "HIGH";
 
@@ -87,7 +95,7 @@ export interface SignalFeatures {
   quality: number;
 
   /** Estimated baseline drift severity */
-  drift: DriftLevel;
+  drift: number;
   /** Classified trajectory of the signal */
   trajectory: TrajectoryClass;
 

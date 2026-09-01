@@ -99,7 +99,7 @@ function MeasurementFlow({ conductivity, temperature, active }: { conductivity: 
 }
 
 function DataPulse({ points, color, active, animType = "analog" }: { points: [number, number, number][]; color: string; active: boolean; animType?: "analog" | "i2c" | "uart" }) {
-  const curve = useMemo(() => new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)), false, "catmullrom", 0.3), [points]);
+  const curve = useMemo(() => new (THREE as any).CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)), false, "catmullrom", 0.3), [points]);
   
   const count = animType === "analog" ? 15 : animType === "i2c" ? 8 : 4;
   const meshesRef = useRef<(THREE.Mesh | null)[]>([]);
@@ -159,7 +159,7 @@ function RealisticWire({ points, color, active, radius = 0.025, label }: {
 }) {
   const [hovered, setHovered] = useState(false);
   const { tube, midPoint } = useMemo(() => {
-    const curve = new THREE.CatmullRomCurve3(
+    const curve = new (THREE as any).CatmullRomCurve3(
       points.map(p => new THREE.Vector3(...p)),
       false,
       "catmullrom",

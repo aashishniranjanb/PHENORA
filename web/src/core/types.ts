@@ -1,4 +1,10 @@
+// Core type barrel — re-exports from sub-modules
+// SignalFeatures, TrajectoryClass, SignalTrajectory defined in signalTypes.ts
 export * from "./signalTypes";
+
+// Intelligence contracts (SignalIntelligence, DecisionEvidence, ModelMetadata, etc.)
+// Defined in core/intelligence/intelligenceTypes.ts
+export * from "./intelligence/intelligenceTypes";
 
 export interface MLResult {
   qualityScore: number;
@@ -8,8 +14,15 @@ export interface MLResult {
   trajectoryConfidence: number;
 }
 
-import { TrajectoryClass } from "./signalTypes";
-export type Trajectory = TrajectoryClass;
+export type Trajectory =
+  | "STABLE"
+  | "RISING"
+  | "FALLING"
+  | "TRANSITION"
+  | "NOISY"
+  | "DRIFTING"
+  | "UNRESOLVED"
+  | "UNKNOWN";
 
 export interface EvidenceResult {
   evidenceScore: number;

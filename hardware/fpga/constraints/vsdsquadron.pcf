@@ -1,0 +1,19 @@
+# ============================================================================
+# PHENORA FPGA Physical Pin Constraints File (.pcf)
+# Target: VSDSquadron FPGA Mini (Lattice iCE40UP5K SG48 package)
+# ============================================================================
+
+# 12 MHz Onboard Crystal Oscillator Clock Input
+set_io clk_12mhz      35
+
+# Master Reset Input (Active-Low)
+set_io rst_n          34
+
+# 3.3V UART Communication Interface (Heltec ESP32-S3 Connection)
+set_io uart_rx_pin    6
+set_io uart_tx_pin    9
+
+# Onboard RGB Status LED Pins (Active-Low)
+set_io led_red_pin    39
+set_io led_green_pin  40
+set_io led_blue_pin   41

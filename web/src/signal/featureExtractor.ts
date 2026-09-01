@@ -111,11 +111,11 @@ export function extractFeatures(
 
   // 7. SNR & Drift
   const snr = calculateSnr(rawValues, cfg.nominalNoiseFloor);
-  const rawDrift = calculateDrift(filtered);
-  const drift = categorizeDrift(rawDrift);
+  const driftRate = calculateDrift(filtered);
+  const driftLevel = categorizeDrift(driftRate, 0.02, 0.1);
 
   // 8. Quality Score & Trajectory
-  const quality = calculateQualityScore(noise, drift, contactEval.contactStatus, cfg.nominalNoiseFloor);
+  const quality = calculateQualityScore(noise, driftLevel, contactEval.contactStatus, cfg.nominalNoiseFloor);
   const trajectory = classifyTrajectory(slopesForStability, stability);
 
   // Confidence is currently mapped to quality, but can be scaled later by ML (Person B)
@@ -124,7 +124,7 @@ export function extractFeatures(
   const isAdcSaturated = contactEval.contactStatus === "CONTACT_BAD" && contactEval.reason?.includes("railing");
   const isBaselineMissing = !baseline_valid;
   const isExcessiveNoise = noise > cfg.nominalNoiseFloor * 100;
-  const isExcessiveDrift = drift === "HIGH";
+  const isExcessiveDrift = driftLevel === "HIGH";
 
   const qualityFlags = {
     insufficientSamples: samples.length < cfg.filterWindowSize,
@@ -152,7 +152,7 @@ export function extractFeatures(
     noise,
     snr,
     quality,
-    drift,
+    drift: driftRate,
     trajectory,
     anomaly: contactEval.anomalyDetected,
     confidence,
