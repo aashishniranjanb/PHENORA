@@ -32,10 +32,16 @@ export default function Home() {
               
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-10">
                 <Link
-                  href="/spectrae"
+                  href="/phenora-flash"
                   className="inline-flex items-center justify-center px-6 py-3.5 bg-[#059669] hover:bg-[#047857] text-white font-bold tracking-wider rounded transition-all duration-200 text-sm shadow-md"
                 >
-                  EXPLORE PHENORA V1 <ArrowRight className="ml-2 h-4 w-4" />
+                  EXPLORE PHENORA FLASH <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+                <Link
+                  href="/phenora-ultra"
+                  className="inline-flex items-center justify-center px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold tracking-wider rounded transition-all duration-200 text-sm shadow-md"
+                >
+                  EXPLORE PHENORA ULTRA <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
                 <Link
                   href="/spectrae"
@@ -480,10 +486,16 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/spectrae"
+              href="/phenora-flash"
               className="px-6 py-3.5 bg-[#059669] hover:bg-[#047857] text-white font-bold rounded tracking-wider text-xs transition-all duration-200 uppercase shadow-md"
             >
-              Explore V1
+              Explore Flash
+            </Link>
+            <Link
+              href="/phenora-ultra"
+              className="px-6 py-3.5 bg-[#059669] hover:bg-[#047857] text-white font-bold rounded tracking-wider text-xs transition-all duration-200 uppercase shadow-md"
+            >
+              Explore Ultra
             </Link>
             <Link
               href="/spectrae"

@@ -4,14 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
 
   const links = [
     { href: "/", label: "HOME" },
-    { href: "/phenora-flash", label: "PHENORA FLASH" },
+    { href: "/phenora-flash", label: "PHENORA FLASH (V2)" },
+    { href: "/phenora-ultra", label: "PHENORA ULTRA (V3)" },
     { href: "/technology", label: "TECHNOLOGY" },
     { href: "/spectrae", label: "SIMULATION LAB" },
     { href: "/research", label: "RESEARCH" },
@@ -41,20 +44,42 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1 lg:space-x-4">
+          <div 
+            className="hidden md:flex items-center space-x-1 lg:space-x-2 relative"
+            onMouseLeave={() => setHoveredLink(null)}
+          >
             {links.map((link) => {
               const isActive = pathname === link.href;
+              const isHovered = hoveredLink === link.href;
+              
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-2 rounded-md text-xs font-bold tracking-wider transition-colors duration-200 ${
-                    isActive
-                      ? "text-[#059669] bg-emerald-50 border border-emerald-200"
-                      : "text-slate-700 hover:text-[#059669] hover:bg-slate-100"
+                  onMouseEnter={() => setHoveredLink(link.href)}
+                  className={`relative px-4 py-2.5 rounded-xl text-[11px] font-extrabold tracking-widest transition-colors duration-300 z-10 ${
+                    isActive || isHovered ? "text-[#059669]" : "text-slate-600"
                   }`}
                 >
                   {link.label}
+                  {isActive && (
+                    <motion.div
+                      layoutId="navbar-indicator"
+                      className="absolute inset-0 bg-emerald-50 border border-emerald-200/60 rounded-xl -z-10 shadow-sm"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  {isHovered && !isActive && (
+                    <motion.div
+                      layoutId="navbar-hover"
+                      className="absolute inset-0 bg-slate-100/80 rounded-xl -z-10"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    />
+                  )}
                 </Link>
               );
             })}

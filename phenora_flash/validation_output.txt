@@ -1,0 +1,68 @@
+
+--------------------------------------------------------------------------
+  V1  MEASUREMENT INTEGRITY GATE
+--------------------------------------------------------------------------
+  injected bad contacts caught (sensitivity) : 0.883  (53/60)
+  good measurements passed   (specificity)   : 1.000  (60/60)
+  false rejections                           : 0
+  ESCAPES (bad data reaching the model)      : 7  <- the number that matters
+
+--------------------------------------------------------------------------
+  V2  DIGITAL-TWIN FORECAST CALIBRATION
+--------------------------------------------------------------------------
+    horizon   95% coverage    width  signed bias
+      0.5 h          45.6%    0.210       +0.069   BADLY UNDER-COVERED
+      1.0 h          41.1%    0.275       +0.113   BADLY UNDER-COVERED
+      1.5 h          37.8%    0.250       +0.091   BADLY UNDER-COVERED
+      2.0 h          40.0%    0.212       +0.029   BADLY UNDER-COVERED
+
+  DIAGNOSIS. Two hypotheses were tested:
+    H1 variance under-propagation (EKF linearisation through a
+       convex map) -> replaced with 600-particle ensemble
+       propagation. Coverage moved ~30% -> ~41%. Real, but small.
+    H2 structural bias: the logistic process model has no lag
+       state, so a filter fitted during lag->exponential reads the
+       acceleration as a high mu and over-shoots.
+  The large positive signed bias above is H2's signature, and it
+  does not shrink with more particles. H2 dominates.
+  FIX: 3-state Baranyi model with an explicit physiological-state
+  variable, then re-run this test. More process noise would only
+  buy coverage by making the forecast useless.
+  UNTIL THEN: the +30 min / +60 min confidence numbers in the
+  original PHENORA concept must NOT be displayed. A forecast this
+  miscalibrated is worse than no forecast.
+
+--------------------------------------------------------------------------
+  V3  CONFORMAL COVERAGE, PER CLASS
+--------------------------------------------------------------------------
+  class               n   coverage   mean set
+  NEGATIVE           17     100.0%       1.00
+  E_COLI_S           15     100.0%       1.00
+  E_COLI_R           18      94.4%       1.00
+  K_PNEUMONIAE       13      69.2%       1.00
+  E_FAECALIS         22     100.0%       1.00
+  P_MIRABILIS        11      90.9%       1.00
+  ALL                96      93.8%       1.00   target 90.0%
+
+  Split conformal guarantees MARGINAL coverage. Per-class coverage
+  can dip below target - a Mondrian (class-conditional) variant is
+  required before any clinical claim.
+
+--------------------------------------------------------------------------
+  V4  WHERE DOES THE INFORMATION COME FROM?  (stage ablation)
+--------------------------------------------------------------------------
+  channels used             dims    top-1   set size
+  BULK only                    4    18.8%       5.72
+  BULK + AFFINITY              7    59.4%       2.38
+  BULK + GROWTH(4h)           11    65.6%       2.15
+  AFFINITY only                3    60.4%       2.40
+  GROWTH(4h) only              7    64.6%       2.09
+  AST only                     4    76.0%       1.85
+  GROWTH + AST                11    94.8%       1.05
+  FULL cartridge              18    93.8%       1.00
+
+  Reading: the bulk spectrum on its own is close to chance. Every
+  usable bit comes from the recognition chemistry and the growth
+  biology. The spectrometer is the TRANSDUCER, not the assay.
+
+  figure written: figures/04_validation.png

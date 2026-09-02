@@ -1,0 +1,121 @@
+
+==========================================================================
+  PHENORA FLASH - UNKNOWN SPECIMEN, AUTONOMOUS RUN
+==========================================================================
+  matrix            : urine, 200 uL
+  cartridge         : 1 bulk + 3 affinity + 4 growth channels
+  operator sees     : nothing about the answer
+
+==========================================================================
+  GATE 0  DETECTABILITY BUDGET (run before anything else)
+==========================================================================
+  raw urine @ 1e+05 CFU/mL -> volume fraction 1.0e-07 -> |dZ/Z| ~ 1.5e-07
+  raw urine @ 1e+08 CFU/mL -> volume fraction 1.0e-04 -> |dZ/Z| ~ 1.5e-04
+  instrument repeatability (AFE + contact)  ~ 1e-3
+  VERDICT: bulk EIS of the RAW sample cannot see the organism.
+           Signal must be amplified biologically (growth wells)
+           or chemically (affinity capture). Bulk channel is
+           demoted to matrix QC / nuisance tracking.
+
+==========================================================================
+  LAYER 1  PARALLEL ACQUISITION
+==========================================================================
+  sub-band multisine bursts   : 3
+  crest factors               : [3.41, 3.41, 2.943]
+  tones recovered             : 24 (10 Hz - 1 MHz)
+  wall-clock, parallel        : 404 ms
+  wall-clock, stepped sine    : 920 ms
+  throughput gain             : 2.28x
+  simultaneity window         : 400 ms
+    -> the real win is not raw speed. Every tone is sampled
+       within ONE window, so a drifting sample cannot smear
+       the spectrum. That is what makes Z(f,t) meaningful.
+  median tone SNR             : 109.4 dB
+
+==========================================================================
+  LAYER 2  MEASUREMENT INTEGRITY (KK gate)
+==========================================================================
+  Kramers-Kronig chi^2        : 1.35e-04
+  worst local residual        : 2.17 %
+  trust score                 : 0.755
+  flags                       : none
+  VERDICT                     : ACCEPT
+
+==========================================================================
+  LAYER 3/4  DIGITAL TWIN - STATE ESTIMATE AND FORECAST
+==========================================================================
+  observed to t = 2.0 h
+  state g   = 0.262 +/- 0.019   (0 = blank, 1 = plateau)
+  state mu  = 2.358 +/- 0.445  1/h
+
+    horizon  predicted g       95% interval    conf
+      0.5 h        0.531     [0.405, 0.662]     60%
+      1.0 h        0.779     [0.581, 0.917]     51%
+      2.0 h        0.963     [0.821, 0.998]     70%
+
+  time to detection threshold : 0.46 h (earliest 0.30 h)
+  actual measured at t=4.0 h  : g = 0.520   [forecast was blind to this]
+
+  *** CALIBRATION WARNING (see validate.py, V2) ***
+  These intervals achieve ~41% empirical coverage against a
+  nominal 95%. The forecaster is BIASED HIGH by ~0.1 in g.
+  It is shown here because it is part of the architecture, and
+  it is BLOCKED from the reported result until the lag-aware
+  process model lands. Nothing downstream consumes it.
+
+==========================================================================
+  LAYER 5/6  AUTONOMOUS MEASUREMENT PLANNING
+==========================================================================
+  start: uniform prior over 6 classes, H = 2.58 bits
+
+  candidate actions:
+    << BULK_SCAN        EIG  0.14 bits  cost    0.4 min  ->  340.26 mbits/min
+       AFFINITY_PANEL   EIG  1.50 bits  cost    6.0 min  ->  249.83 mbits/min
+       GROWTH_2H        EIG  0.72 bits  cost  120.0 min  ->    5.96 mbits/min
+     executed BULK_SCAN  ->  H =  2.48 bits,  leader P_MIRABILIS (29.1%),  t+0 min
+
+  candidate actions:
+    << AFFINITY_PANEL   EIG  1.27 bits  cost    6.0 min  ->  211.56 mbits/min
+       GROWTH_2H        EIG  0.62 bits  cost  120.0 min  ->    5.17 mbits/min
+     executed AFFINITY_PANEL  ->  H =  1.78 bits,  leader E_COLI_R (47.7%),  t+6 min
+
+  candidate actions:
+    << GROWTH_2H        EIG  0.23 bits  cost  120.0 min  ->    1.92 mbits/min
+     executed GROWTH_2H  ->  H =  1.44 bits,  leader E_COLI_R (53.9%),  t+126 min
+
+  candidate actions:
+    << AST_PANEL        EIG  1.32 bits  cost   60.0 min  ->   22.05 mbits/min
+       GROWTH_4H        EIG  1.02 bits  cost  120.0 min  ->    8.53 mbits/min
+     executed AST_PANEL  ->  H =  0.00 bits,  leader E_COLI_R (100.0%),  t+186 min
+     STOP: posterior entropy below threshold, 1 action(s) skipped
+
+==========================================================================
+  OUTPUT  CALIBRATED RESULT
+==========================================================================
+  DECISION                    : REPORT_SINGLE
+  conformal prediction set    : ['E_COLI_R']
+  coverage guarantee          : 90% (marginal, under exchangeability)
+  normalised entropy          : 0.002
+  measurement trust           : 0.755 [ACCEPT]
+
+  organism          posterior   in set
+  E_COLI_R             100.0%      YES
+  K_PNEUMONIAE           0.0%        -
+  P_MIRABILIS            0.0%        -
+  E_COLI_S               0.0%        -
+  E_FAECALIS             0.0%        -
+  NEGATIVE               0.0%        -
+
+  SUSCEPTIBILITY (reported only if control well grew)
+    NITROFURANTOIN   growth ratio  0.85  #####################      RESISTANT
+    CIPROFLOXACIN    growth ratio  0.83  ####################       RESISTANT
+    TRIMETHOPRIM     growth ratio  1.17  ############################ RESISTANT
+
+  --- provenance -------------------------------------------
+  ground truth (simulation only)   : E_COLI_R
+  correct                          : True  (in set), True (top-1)
+  data source                      : SYNTHETIC, generated by
+                                     phenora/physics.py
+  clinical validity                : NOT ESTABLISHED
+
+  figures written to figures/

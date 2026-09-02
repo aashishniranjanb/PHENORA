@@ -332,7 +332,7 @@ export interface DiseaseIntelligenceResult {
 }
 
 // ============================================================================
-// 6. DIGITAL TWIN
+// 6. TWIN
 // ============================================================================
 
 export interface TwinVariable {

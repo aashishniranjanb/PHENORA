@@ -15,20 +15,20 @@ export default function StatusBar({ run, result, isRunning }: StatusBarProps) {
   const uncertainty = result?.diseaseIntelligence?.primary?.uncertainty ?? "--";
 
   return (
-    <footer className="h-9 bg-[#0B1528] border-t border-slate-800 px-4 flex items-center justify-between shrink-0 font-mono text-[11px] text-slate-400">
+    <footer className="h-9 bg-white border-t border-slate-200 px-4 flex items-center justify-between shrink-0 font-mono text-[11px] text-slate-600">
       {/* Device Connection Telemetry */}
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span className="text-slate-300">DEVICE: HELTEC-01</span>
+          <span className="text-slate-700">DEVICE: HELTEC-01</span>
         </div>
         <div className="flex items-center space-x-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span className="text-slate-300">ADC: STREAMING</span>
+          <span className="text-slate-700">ADC: STREAMING</span>
         </div>
         <div className="flex items-center space-x-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span className="text-slate-300">FPGA: READY</span>
+          <span className="text-slate-700">FPGA: READY</span>
         </div>
         <div className="flex items-center space-x-1.5">
           <span className="w-2 h-2 rounded-full bg-amber-400"></span>
@@ -39,17 +39,17 @@ export default function StatusBar({ run, result, isRunning }: StatusBarProps) {
       {/* Primary Science Quality Telemetry */}
       <div className="flex items-center space-x-6">
         <div>
-          QUALITY: <span className="text-cyan-400 font-bold">{quality}/100</span>
+          QUALITY: <span className="text-emerald-600 font-bold">{quality}/100</span>
         </div>
         <div>
-          CONFIDENCE: <span className="text-emerald-400 font-bold">{confidence}%</span>
+          CONFIDENCE: <span className="text-emerald-600 font-bold">{confidence}%</span>
         </div>
         <div>
           UNCERTAINTY: <span className="text-amber-400 font-bold">{uncertainty}%</span>
         </div>
         {run && (
           <div className="text-slate-500">
-            PHASE: <span className="text-slate-300">{run.phase}</span>
+            PHASE: <span className="text-slate-700">{run.phase}</span>
           </div>
         )}
       </div>

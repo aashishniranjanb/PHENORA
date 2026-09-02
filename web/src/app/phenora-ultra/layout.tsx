@@ -11,7 +11,7 @@ export default function PhenoraUltraLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-[#070D18] text-slate-100 font-sans select-none flex flex-col">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-50 text-slate-900 font-sans select-none flex flex-col">
       {children}
     </div>
   );

@@ -36,7 +36,7 @@ export default function PhenoraUltraPage() {
   } = usePhenoraRun();
 
   return (
-    <div className="flex flex-col h-screen bg-[#070D18] text-slate-100 overflow-hidden font-mono">
+    <div className="flex flex-col h-screen bg-slate-50 text-slate-900 overflow-hidden font-mono">
       {/* 1. Global Top Bar */}
       <TopBar
         run={run}
@@ -57,7 +57,7 @@ export default function PhenoraUltraPage() {
 
       {/* 3. Main Stage Content Area + Right Intelligence Panel */}
       <div className="flex-1 flex overflow-hidden">
-        <main className="flex-1 overflow-y-auto bg-[#070D18] p-2">
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-2">
           {activeStage === "SAMPLE" && (
             <SampleStage
               sampleId={sampleId}

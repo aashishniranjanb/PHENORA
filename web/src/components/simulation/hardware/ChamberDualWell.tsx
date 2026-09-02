@@ -5,14 +5,50 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
-interface ChamberProps {
-  highlighted: boolean;
-  phaseActive: boolean;
+interface ChamberDualWellProps {
+  highlighted?: boolean;
+  phaseActive?: boolean;
   currentStep?: number;
   cellConcentration?: number;
   conductivity?: number;
   temperature?: number;
+  cutawayMode?: boolean;
+  isResistant?: boolean;
 }
+
+const ACExcitationField = ({ active, isTest, currentStep }: { active: boolean; isTest: boolean; currentStep: number }) => {
+  const count = 40;
+  const ref = useRef<THREE.Points>(null);
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 0.22;
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 0.16 - 0.02;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state) => {
+    if (!active || !ref.current) return;
+    const pos = ref.current.geometry.attributes.position.array as Float32Array;
+    const time = state.clock.elapsedTime;
+    for (let i = 0; i < count; i++) {
+      const startX = ((i / count) - 0.5) * 0.22;
+      pos[i * 3] = startX + Math.sin(time * (isTest && currentStep >= 3 ? 25 : 15) + i) * 0.03;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={ref} visible={active}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial color={isTest ? "#fca5a5" : "#93c5fd"} size={0.015} transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+    </points>
+  );
+};
 
 export default function ChamberDualWell({
   highlighted,
@@ -21,12 +57,15 @@ export default function ChamberDualWell({
   cellConcentration = 0.5,
   conductivity = 1.0,
   temperature = 25,
+  cutawayMode = false,
+  isResistant = false,
 }: ChamberProps) {
   const groupRef = useRef<THREE.Group>(null);
   const testCellsRef = useRef<THREE.Group>(null);
   const controlCellsRef = useRef<THREE.Group>(null);
   const particlesRef = useRef<THREE.Points>(null);
   const glowRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const dataStreamRef = useRef<THREE.Points>(null);
 
   // Slow rotation for biological cellular inclusions
   useFrame((state, dt) => {
@@ -35,10 +74,15 @@ export default function ChamberDualWell({
     if (testCellsRef.current) {
       let rotSpeed = 0.08;
       if (currentStep >= 3) {
-        // Test cells react and diverge when measuring
-        rotSpeed = 0.25 + Math.sin(time * 5) * 0.1;
-        const scale = 1.0 + Math.sin(time * 8) * 0.15;
-        testCellsRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.1);
+        if (isResistant) {
+          rotSpeed = 0.25 + Math.sin(time * 5) * 0.1;
+          const scale = 1.0 + Math.sin(time * 8) * 0.15;
+          testCellsRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.1);
+        } else {
+          // Susceptible cells die/shrink in antibiotic
+          rotSpeed = 0.02;
+          testCellsRef.current.scale.lerp(new THREE.Vector3(0.2, 0.2, 0.2), 0.05);
+        }
       } else {
         testCellsRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
       }
@@ -46,7 +90,11 @@ export default function ChamberDualWell({
     }
 
     if (controlCellsRef.current) {
-      controlCellsRef.current.rotation.y += dt * 0.04;
+      let rotSpeed = 0.04;
+      if (currentStep >= 3) {
+        rotSpeed = 0.15;
+      }
+      controlCellsRef.current.rotation.y += dt * rotSpeed;
     }
     
     glowRefs.current.forEach((mat, i) => {
@@ -66,9 +114,20 @@ export default function ChamberDualWell({
       }
       particlesRef.current.geometry.attributes.position.needsUpdate = true;
     }
+
+    if (dataStreamRef.current && currentStep >= 4) { // COMPARE / PREDICT
+      const pos = dataStreamRef.current.geometry.attributes.position.array as Float32Array;
+      for (let i = 0; i < pos.length / 3; i++) {
+        pos[i * 3 + 1] += dt * 0.8;
+        if (pos[i * 3 + 1] > 1.0) pos[i * 3 + 1] = 0;
+      }
+      dataStreamRef.current.geometry.attributes.position.needsUpdate = true;
+    }
   });
 
-  const cellCount = Math.max(4, Math.floor(cellConcentration * 40) + 4);
+  const baseCellCount = Math.max(4, Math.floor(cellConcentration * 40) + 4);
+  const controlCellCount = baseCellCount * 3;
+  const testCellCount = baseCellCount * 3;
 
   // Excitation particles
   const particlePositions = useMemo(() => {
@@ -85,41 +144,45 @@ export default function ChamberDualWell({
     return p;
   }, []);
 
+  const dataStreamPositions = useMemo(() => {
+    const p = new Float32Array(100 * 3);
+    for (let i = 0; i < 100; i++) {
+      p[i * 3] = (Math.random() - 0.5) * 1.5;
+      p[i * 3 + 1] = Math.random() * 1.0;
+      p[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
+    }
+    return p;
+  }, []);
+
+  // Precompute Control Cells
+  const controlCellData = useMemo(() => {
+    return Array.from({ length: controlCellCount }).map((_, i) => {
+      const x = Math.sin(i * 2.1) * (0.18 * Math.random());
+      const y = -0.08 + Math.cos(i * 1.5) * (0.12 * Math.random());
+      const z = Math.sin(i * 3.7) * (0.18 * Math.random());
+      const activeStep = i < baseCellCount ? 1 : 3; // First batch visible at step 1, rest at step 3
+      return { x, y, z, activeStep };
+    });
+  }, [controlCellCount, baseCellCount]);
+
+  // Precompute Test Cells
+  const testCellData = useMemo(() => {
+    return Array.from({ length: testCellCount }).map((_, i) => {
+      const x = Math.sin(i * 1.73) * (0.19 * Math.random());
+      const y = -0.08 + Math.cos(i * 2.31) * (0.12 * Math.random());
+      const z = Math.sin(i * 3.17) * (0.19 * Math.random());
+      const s = 0.028 + Math.abs(Math.sin(i * 5.5)) * 0.015;
+      const activeStep = i < baseCellCount ? 1 : 3;
+      return { x, y, z, s, activeStep };
+    });
+  }, [testCellCount, baseCellCount]);
+
   const pcbAccent = phaseActive ? "#00ffcc" : highlighted ? "#17B169" : "#0A192F";
 
-  const ACExcitationField = ({ active, isTest }: { active: boolean; isTest: boolean }) => {
-    const count = 40;
-    const ref = useRef<THREE.Points>(null);
-    const positions = useMemo(() => {
-      const arr = new Float32Array(count * 3);
-      for (let i = 0; i < count; i++) {
-        arr[i * 3] = (Math.random() - 0.5) * 0.22;
-        arr[i * 3 + 1] = (Math.random() - 0.5) * 0.16 - 0.02;
-        arr[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
-      }
-      return arr;
-    }, []);
+  const liquidOpacityTarget = currentStep >= 1 ? 0.75 : 0.0;
+  const measurementActive = currentStep === 2; // MEASURE
+  const isGrowing = currentStep >= 3;
 
-    useFrame((state) => {
-      if (!active || !ref.current) return;
-      const pos = ref.current.geometry.attributes.position.array as Float32Array;
-      const time = state.clock.elapsedTime;
-      for (let i = 0; i < count; i++) {
-        const startX = ((i / count) - 0.5) * 0.22;
-        pos[i * 3] = startX + Math.sin(time * (isTest && currentStep >= 3 ? 25 : 15) + i) * 0.03;
-      }
-      ref.current.geometry.attributes.position.needsUpdate = true;
-    });
-
-    return (
-      <points ref={ref} visible={active}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-        </bufferGeometry>
-        <pointsMaterial color={isTest ? "#fca5a5" : "#93c5fd"} size={0.015} transparent opacity={0.6} blending={THREE.AdditiveBlending} />
-      </points>
-    );
-  };
 
   return (
     <group ref={groupRef}>
@@ -149,6 +212,8 @@ export default function ChamberDualWell({
           color="#040d1a" 
           roughness={0.7} 
           metalness={0.4} 
+          transparent={cutawayMode}
+          opacity={cutawayMode ? 0.2 : 1}
         />
       </mesh>
 
@@ -159,7 +224,7 @@ export default function ChamberDualWell({
       ].map(([x, z], i) => (
         <mesh key={`pillar-${i}`} position={[x, -0.15, z]}>
           <cylinderGeometry args={[0.045, 0.045, 0.14, 12]} />
-          <meshStandardMaterial color="#333333" metalness={0.9} roughness={0.2} />
+          <meshStandardMaterial color="#333333" metalness={0.9} roughness={0.2} transparent={cutawayMode} opacity={cutawayMode ? 0.3 : 1} />
         </mesh>
       ))}
 
@@ -169,7 +234,7 @@ export default function ChamberDualWell({
         <meshPhysicalMaterial
           color="#a0c8f0"
           transparent
-          opacity={0.35}
+          opacity={cutawayMode ? 0.1 : 0.35}
           roughness={0.08}
           metalness={0.1}
           transmission={0.8}
@@ -186,11 +251,11 @@ export default function ChamberDualWell({
         <group key={`bolt-${i}`} position={[x, 0.24, z]}>
           <mesh>
             <cylinderGeometry args={[0.035, 0.035, 0.05, 12]} />
-            <meshStandardMaterial color="#cccccc" metalness={0.95} roughness={0.1} />
+            <meshStandardMaterial color="#cccccc" metalness={0.95} roughness={0.1} transparent={cutawayMode} opacity={cutawayMode ? 0.2 : 1} />
           </mesh>
           <mesh position={[0, 0.026, 0]}>
             <cylinderGeometry args={[0.015, 0.015, 0.005, 6]} />
-            <meshStandardMaterial color="#222222" metalness={0.8} />
+            <meshStandardMaterial color="#222222" metalness={0.8} transparent={cutawayMode} opacity={cutawayMode ? 0.2 : 1} />
           </mesh>
         </group>
       ))}
@@ -217,7 +282,7 @@ export default function ChamberDualWell({
             emissive="#1e40af"
             emissiveIntensity={phaseActive ? 0.6 : 0.2}
             transparent
-            opacity={0.75}
+            opacity={currentStep >= 1 ? 0.75 : 0}
             roughness={0.2}
           />
         </mesh>
@@ -244,28 +309,23 @@ export default function ChamberDualWell({
 
         {/* Control Biological Cell Inclusions */}
         <group ref={controlCellsRef}>
-          {Array.from({ length: Math.floor(cellCount / 2) }).map((_, i) => {
-            const x = Math.sin(i * 2.1) * 0.18;
-            const y = -0.08 + Math.cos(i * 1.5) * 0.06;
-            const z = Math.sin(i * 3.7) * 0.18;
-            return (
-              <mesh key={`ctrl-cell-${i}`} position={[x, y, z]}>
-                <sphereGeometry args={[0.025, 8, 8]} />
-                <meshStandardMaterial color="#60a5fa" roughness={0.6} transparent opacity={0.8} />
-              </mesh>
-            );
-          })}
+          {controlCellData.map((data, i) => (
+            <mesh key={`ctrl-cell-${i}`} position={[data.x, data.y, data.z]}>
+              <sphereGeometry args={[0.025, 8, 8]} />
+              <meshStandardMaterial color="#60a5fa" roughness={0.6} transparent opacity={currentStep >= data.activeStep ? 0.8 : 0} />
+            </mesh>
+          ))}
         </group>
 
         {/* Control Label */}
         <Html position={[0, -0.16, 0.54]} center distanceFactor={8}>
-          <div className="px-1.5 py-0.5 rounded text-[7px] font-extrabold tracking-widest text-blue-400 bg-blue-950/80 border border-blue-800 uppercase pointer-events-none">
-            CONTROL
+          <div className="px-1.5 py-0.5 rounded text-[7px] font-extrabold tracking-widest text-blue-400 bg-blue-950/80 border border-blue-800 uppercase pointer-events-none whitespace-nowrap">
+            - ANTIBIOTIC (CONTROL) {currentStep >= 3 && " (GROWING)"}
           </div>
         </Html>
 
         {/* Control AC Excitation Field */}
-        <ACExcitationField active={currentStep >= 1} isTest={false} />
+        <ACExcitationField active={measurementActive} isTest={false} currentStep={currentStep} />
       </group>
 
       {/* 4. TEST WELL (Right Well - Red Fluid + Antibiotic) */}
@@ -290,7 +350,7 @@ export default function ChamberDualWell({
             emissive="#991b1b"
             emissiveIntensity={phaseActive ? 0.7 : 0.2}
             transparent
-            opacity={0.78}
+            opacity={currentStep >= 1 ? 0.78 : 0}
             roughness={0.2}
           />
         </mesh>
@@ -317,30 +377,39 @@ export default function ChamberDualWell({
 
         {/* Test Biological Cell Inclusions */}
         <group ref={testCellsRef}>
-          {Array.from({ length: cellCount }).map((_, i) => {
-            const x = Math.sin(i * 1.73) * 0.19;
-            const y = -0.08 + Math.cos(i * 2.31) * 0.06;
-            const z = Math.sin(i * 3.17) * 0.19;
-            const s = 0.028 + Math.abs(Math.sin(i * 5.5)) * 0.015;
-            return (
-              <mesh key={`test-cell-${i}`} position={[x, y, z]}>
-                <sphereGeometry args={[s, 8, 8]} />
-                <meshStandardMaterial color="#f87171" roughness={0.7} transparent opacity={0.85} />
-              </mesh>
-            );
-          })}
+          {testCellData.map((data, i) => (
+            <mesh key={`test-cell-${i}`} position={[data.x, data.y, data.z]}>
+              <sphereGeometry args={[data.s, 8, 8]} />
+              <meshStandardMaterial 
+                color="#f87171" 
+                roughness={0.7} 
+                transparent 
+                opacity={currentStep >= data.activeStep ? (isResistant || data.activeStep === 1 ? 0.85 : 0) : 0} 
+              />
+            </mesh>
+          ))}
         </group>
 
         {/* Test Label */}
         <Html position={[0, -0.16, 0.54]} center distanceFactor={8}>
           <div className="px-1.5 py-0.5 rounded text-[7px] font-extrabold tracking-widest text-red-400 bg-red-950/80 border border-red-800 uppercase pointer-events-none">
-            TEST {currentStep >= 3 && <span className="text-white animate-pulse">Δ</span>}
+            + ANTIBIOTIC {currentStep >= 3 && (isResistant ? " (RESISTANT)" : " (SUPPRESSED)")}
           </div>
         </Html>
 
         {/* Test AC Excitation Field */}
-        <ACExcitationField active={currentStep >= 1} isTest={true} />
+        <ACExcitationField active={measurementActive} isTest={true} currentStep={currentStep} />
       </group>
+
+      {/* 5. Data Stream Extracting upwards to Twin */}
+      {currentStep >= 4 && (
+        <points ref={dataStreamRef}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[dataStreamPositions, 3]} />
+          </bufferGeometry>
+          <pointsMaterial color="#a78bfa" size={0.04} transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+        </points>
+      )}
 
       {/* 6. Dynamic Measurement Particles */}
       <points ref={particlesRef}>
@@ -355,6 +424,18 @@ export default function ChamberDualWell({
           blending={THREE.AdditiveBlending}
         />
       </points>
+      {/* 7. Smart Analysis HUD overlay */}
+      {currentStep === 2 && (
+        <Html position={[0, 0.4, 0]} center zIndexRange={[100, 0]}>
+          <div className="bg-slate-900/90 backdrop-blur border border-emerald-500/50 px-3 py-2 rounded-lg text-emerald-400 font-mono text-[10px] whitespace-nowrap shadow-xl flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            <div>
+              <div className="font-bold tracking-widest uppercase">Internal Smart Analysis</div>
+              <div className="text-slate-300">Signal Stability 98.4% — Sufficient Data Collected</div>
+            </div>
+          </div>
+        </Html>
+      )}
     </group>
   );
 }

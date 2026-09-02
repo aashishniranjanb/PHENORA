@@ -1,0 +1,38 @@
+{
+  "n": 480,
+  "features": [
+    "bulk_logRs",
+    "bulk_logQ",
+    "bulk_n",
+    "bulk_phase100",
+    "aff_CRP_dRct",
+    "aff_IL6_dRct",
+    "aff_ENDOTOXIN_dRct",
+    "g2_nis",
+    "g2_slope",
+    "g4_mu",
+    "g4_lag",
+    "g4_tdet",
+    "g4_plateau",
+    "g4_logtau",
+    "ast_NITROFURANTOIN",
+    "ast_CIPROFLOXACIN",
+    "ast_TRIMETHOPRIM",
+    "ast_valid"
+  ],
+  "classes": [
+    "NEGATIVE",
+    "E_COLI_S",
+    "E_COLI_R",
+    "K_PNEUMONIAE",
+    "E_FAECALIS",
+    "P_MIRABILIS"
+  ],
+  "accuracy": 0.9375,
+  "coverage": 0.9375,
+  "mean_set_size": 1.0,
+  "qhat": 0.5669105383227644,
+  "qc_reject": 41,
+  "qc_review": 0,
+  "runtime_s": 56.45155072212219
+}
