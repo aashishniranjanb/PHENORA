@@ -10,16 +10,30 @@ interface ResultStageProps {
 
 export default function ResultStage({ result, onRunAgain }: ResultStageProps) {
   const [showProvenance, setShowProvenance] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   const primary = result?.diseaseIntelligence?.primary;
   const prov = result?.provenance;
+
+  const reasoningNodes = [
+    { title: "SAMPLE", level: "MEASURED", desc: "Sample ID, clinical strain pairing & volume validation" },
+    { title: "ACQUISITION", level: "MEASURED", desc: "860 SPS 16-bit time-domain stream & quality scoring" },
+    { title: "IMPEDANCE", level: "DERIVED", desc: "Bode log-log spectrum, Nyquist Cole-Cole arc & temporal Z(t)" },
+    { title: "SIGNAL FEATURES", level: "DERIVED", desc: "RMS, peak-to-peak, baseline drift, and SNR metrics" },
+    { title: "PHENOTYPE", level: "DERIVED", desc: "Structured phenotype matrix across spectral & resistive domains" },
+    { title: "DISEASE MODEL", level: "PREDICTED", desc: "UTI-associated phenotype probability & alternative hypotheses" },
+    { title: "DIGITAL TWIN", level: "INFERRED", desc: "3-column observed/inferred/predicted state synchronization" },
+    { title: "FORECAST", level: "PREDICTED", desc: "Time-series trajectory extrapolation for +5m to +30m horizons" },
+    { title: "AUTONOMY", level: "PREDICTED", desc: "Closed-loop decision planner evaluating information gain" },
+    { title: "FINAL RESULT", level: "PREDICTED", desc: "Canonical PhenoraFlashResult payload" }
+  ];
 
   return (
     <div className="p-6 max-w-5xl mx-auto font-mono space-y-6">
       {/* Result Header */}
       <div className="bg-[#0B1528] border border-slate-800 rounded-xl p-5 flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-bold text-white mb-1">PHENORA FLASH RESULT</h2>
+          <h2 className="text-lg font-bold text-white mb-1">PHENORA FLASH RESULT SUMMARY</h2>
           <p className="text-xs text-slate-400">Run: {prov?.runId || "PF-2026-00042"} | Sample: {result?.sample?.sampleId || "URINE-017"}</p>
         </div>
         <div className="text-xs bg-emerald-950 border border-emerald-700 text-emerald-300 px-3 py-1.5 rounded font-bold">
@@ -35,8 +49,8 @@ export default function ResultStage({ result, onRunAgain }: ResultStageProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="text-[10px] text-slate-500">SAMPLE</div>
-            <div className="text-sm font-bold text-white mt-0.5">{result?.sample?.sampleId}</div>
+            <div className="text-[10px] text-slate-500">SAMPLE & STRAIN</div>
+            <div className="text-sm font-bold text-white mt-0.5">{result?.sample?.sampleId} ({result?.sample?.protocol})</div>
           </div>
           <div>
             <div className="text-[10px] text-slate-500">IMPEDANCE PHENOTYPE</div>
@@ -56,25 +70,38 @@ export default function ResultStage({ result, onRunAgain }: ResultStageProps) {
         </div>
       </div>
 
-      {/* Reasoning Chain Trace Node Diagram */}
-      <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 text-xs">
-        <h3 className="text-slate-400 font-bold border-b border-slate-800 pb-3 mb-4">
-          END-TO-END REASONING CHAIN TRACE
+      {/* Clickable End-to-End Reasoning Chain Trace */}
+      <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 text-xs space-y-3">
+        <h3 className="text-slate-400 font-bold border-b border-slate-800 pb-3">
+          CLICKABLE REASONING CHAIN TRACE & PROVENANCE MAP
         </h3>
         <div className="flex flex-wrap items-center justify-between text-[10px] gap-2 font-mono">
-          {[
-            "SAMPLE", "ACQUISITION", "IMPEDANCE", "SIGNAL FEATURES", 
-            "PHENOTYPE", "DISEASE MODEL", "DIGITAL TWIN", "FORECAST", 
-            "AUTONOMOUS DECISION", "FINAL RESULT"
-          ].map((node, i) => (
+          {reasoningNodes.map((node, i) => (
             <React.Fragment key={i}>
               {i > 0 && <span className="text-slate-600">➔</span>}
-              <div className="bg-slate-900 border border-slate-700 text-cyan-300 px-2.5 py-1.5 rounded font-bold">
-                {node}
-              </div>
+              <button
+                onClick={() => setSelectedNode(node.title)}
+                className={`px-2.5 py-1.5 rounded font-bold transition-all border ${
+                  selectedNode === node.title
+                    ? "bg-cyan-400 text-slate-950 border-white scale-105"
+                    : "bg-slate-900 border-slate-700 text-cyan-300 hover:border-cyan-400"
+                }`}
+              >
+                {node.title}
+              </button>
             </React.Fragment>
           ))}
         </div>
+
+        {selectedNode && (
+          <div className="p-3 bg-slate-900 border border-cyan-500/50 rounded-lg text-[11px] text-slate-200 mt-3 animate-fade-in">
+            <div className="font-bold text-cyan-300 text-xs mb-1">NODE: {selectedNode}</div>
+            {reasoningNodes.find(n => n.title === selectedNode)?.desc}
+            <div className="text-[10px] text-emerald-400 mt-1 font-bold">
+              PROVENANCE LEVEL: {reasoningNodes.find(n => n.title === selectedNode)?.level}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Limitations Disclaimer (Mandatory) */}

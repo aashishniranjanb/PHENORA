@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { PhenoraFlashResult } from "@/phenora/types";
 
 interface TwinStageProps {
@@ -9,6 +9,12 @@ interface TwinStageProps {
 
 export default function TwinStage({ result }: TwinStageProps) {
   const twin = result?.digitalTwin;
+  const [selectedSnapshotIndex, setSelectedSnapshotIndex] = useState<number | null>(null);
+
+  const history = twin?.history || [];
+  const activeSnapshot = selectedSnapshotIndex !== null && history[selectedSnapshotIndex]
+    ? history[selectedSnapshotIndex].snapshot
+    : { observed: twin?.observed || [], inferred: twin?.inferred || [] };
 
   return (
     <div className="p-6 max-w-5xl mx-auto font-mono space-y-6">
@@ -30,14 +36,14 @@ export default function TwinStage({ result }: TwinStageProps) {
         <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-3">
           <h3 className="text-cyan-400 font-bold border-b border-slate-800 pb-2 text-[11px] uppercase tracking-wider flex items-center justify-between">
             <span>OBSERVED</span>
-            <span className="text-[10px] text-slate-500 font-normal">MEASURED</span>
+            <span className="text-[10px] text-cyan-300 font-normal bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">MEASURED</span>
           </h3>
           <div className="space-y-2">
-            {twin?.observed.map((v, i) => (
+            {activeSnapshot.observed.map((v, i) => (
               <div key={i} className="p-3 bg-slate-900/80 rounded border border-slate-800">
                 <div className="text-[10px] text-slate-400">{v.name}</div>
                 <div className="text-sm font-bold text-white mt-0.5">{v.value} {v.unit}</div>
-                <div className="text-[9px] text-emerald-400 mt-1">Confidence: {v.confidence}%</div>
+                <div className="text-[9px] text-emerald-400 mt-1">Confidence: {v.confidence}% | Provenance: {v.provenance}</div>
               </div>
             )) || <div className="text-slate-500 italic">No observed variables</div>}
           </div>
@@ -47,14 +53,14 @@ export default function TwinStage({ result }: TwinStageProps) {
         <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-3">
           <h3 className="text-cyan-400 font-bold border-b border-slate-800 pb-2 text-[11px] uppercase tracking-wider flex items-center justify-between">
             <span>INFERRED</span>
-            <span className="text-[10px] text-slate-500 font-normal">DERIVED / MODEL</span>
+            <span className="text-[10px] text-amber-300 font-normal bg-amber-950 px-2 py-0.5 rounded border border-amber-800">INFERRED</span>
           </h3>
           <div className="space-y-2">
-            {twin?.inferred.map((v, i) => (
+            {activeSnapshot.inferred.map((v, i) => (
               <div key={i} className="p-3 bg-slate-900/80 rounded border border-slate-800">
                 <div className="text-[10px] text-slate-400">{v.name}</div>
                 <div className="text-sm font-bold text-cyan-300 mt-0.5">{v.value} {v.unit}</div>
-                <div className="text-[9px] text-emerald-400 mt-1">Confidence: {v.confidence}%</div>
+                <div className="text-[9px] text-emerald-400 mt-1">Confidence: {v.confidence}% | Provenance: {v.provenance}</div>
               </div>
             )) || <div className="text-slate-500 italic">No inferred variables</div>}
           </div>
@@ -64,36 +70,48 @@ export default function TwinStage({ result }: TwinStageProps) {
         <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-3">
           <h3 className="text-cyan-400 font-bold border-b border-slate-800 pb-2 text-[11px] uppercase tracking-wider flex items-center justify-between">
             <span>PREDICTED</span>
-            <span className="text-[10px] text-slate-500 font-normal">FORECAST</span>
+            <span className="text-[10px] text-emerald-300 font-normal bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">FORECAST</span>
           </h3>
           <div className="space-y-2">
             <div className="p-3 bg-slate-900/80 rounded border border-slate-800">
               <div className="text-[10px] text-slate-400">Low-Freq |Z| (+10 min)</div>
               <div className="text-sm font-bold text-amber-300 mt-0.5">184 Ω ± 21 Ω</div>
-              <div className="text-[9px] text-amber-400 mt-1">Horizon: +10 min</div>
+              <div className="text-[9px] text-amber-400 mt-1">Horizon: +10 min | Provenance: PREDICTED</div>
             </div>
             <div className="p-3 bg-slate-900/80 rounded border border-slate-800">
               <div className="text-[10px] text-slate-400">Disease Probability (+10 min)</div>
               <div className="text-sm font-bold text-amber-300 mt-0.5">84% ± 18%</div>
-              <div className="text-[9px] text-amber-400 mt-1">Horizon: +10 min</div>
+              <div className="text-[9px] text-amber-400 mt-1">Horizon: +10 min | Provenance: PREDICTED</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Digital Twin Timeline Snapshots */}
-      <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 text-xs">
-        <h3 className="text-slate-400 font-bold border-b border-slate-800 pb-2 mb-4">
-          TWIN STATE TIMELINE SNAPSHOTS
-        </h3>
-        <div className="flex items-center justify-between px-4 font-mono">
-          {twin?.history.map((h, i) => (
-            <div key={i} className="flex flex-col items-center group cursor-pointer">
-              <div className="w-3 h-3 rounded-full bg-cyan-400 border-2 border-slate-900 group-hover:scale-125 transition-all"></div>
-              <span className="text-[10px] text-slate-400 mt-1">T{i}</span>
-              <span className="text-[9px] text-slate-600">Cycle {i + 1}</span>
-            </div>
-          )) || <div className="text-slate-500 italic">No history points yet</div>}
+      {/* Digital Twin Timeline Scrubber */}
+      <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 text-xs space-y-3">
+        <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+          <h3 className="text-slate-400 font-bold">TWIN STATE TIMELINE SNAPSHOT SCRUBBER</h3>
+          <span className="text-[10px] text-cyan-400">
+            {selectedSnapshotIndex !== null ? `SCRUBBING SNAPSHOT T${selectedSnapshotIndex}` : "LIVE SNAPSHOT (NOW)"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between px-4 font-mono pt-2">
+          {history.map((h, i) => {
+            const isSelected = selectedSnapshotIndex === i || (selectedSnapshotIndex === null && i === history.length - 1);
+            return (
+              <div
+                key={i}
+                onClick={() => setSelectedSnapshotIndex(i)}
+                className="flex flex-col items-center group cursor-pointer"
+              >
+                <div className={`w-4 h-4 rounded-full border-2 transition-all ${
+                  isSelected ? "bg-cyan-400 border-white scale-125 shadow-[0_0_8px_rgba(34,211,238,0.8)]" : "bg-slate-800 border-slate-700 hover:border-cyan-400"
+                }`} />
+                <span className="text-[10px] font-bold text-slate-300 mt-1">Cycle {i + 1}</span>
+                <span className="text-[9px] text-slate-500">T{i}</span>
+              </div>
+            );
+          }) || <div className="text-slate-500 italic">No history points recorded</div>}
         </div>
       </div>
 
