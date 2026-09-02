@@ -57,7 +57,7 @@ export function extractFeatures(
       noise: 0,
       snr: 0,
       quality: 0,
-      drift: "LOW",
+      drift: 0,
       trajectory: "UNKNOWN",
       anomaly: true,
       confidence: 0,

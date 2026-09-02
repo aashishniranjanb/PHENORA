@@ -1,6 +1,5 @@
 // Core type barrel — re-exports from sub-modules
-// SignalFeatures, TrajectoryClass, SignalTrajectory defined in signalTypes.ts
-export * from "./signalTypes";
+export type { RawSignalSample, SignalPhase, ProcessingConfig } from "./signalTypes";
 
 // Intelligence contracts (SignalIntelligence, DecisionEvidence, ModelMetadata, etc.)
 // Defined in core/intelligence/intelligenceTypes.ts

@@ -61,7 +61,7 @@ export function usePhenoraRun() {
 
     try {
       const res = await simulationEngineRef.current.executeMeasurementCycle(sc, sampleId);
-      setResult(res);
+      if (res) setResult(res);
     } catch (err) {
       console.error("Simulation run error:", err);
     } finally {
@@ -75,7 +75,7 @@ export function usePhenoraRun() {
 
     try {
       const res = await simulationEngineRef.current.executeMeasurementCycle(scenario, sampleId);
-      setResult(res);
+      if (res) setResult(res);
     } catch (err) {
       console.error("Cycle error:", err);
     } finally {

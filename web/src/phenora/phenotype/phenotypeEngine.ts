@@ -83,7 +83,7 @@ export class PhenotypeEngine {
 
          temporalFeatures.push(createFeature(
           "temporalTrend", trend, "", "TemporalImpedanceData", 
-          "Linear regression over last 5 points", "INFERRED", this.version
+          "Linear regression over last 5 points", "MODEL_INFERRED", this.version
          ));
       }
     }
